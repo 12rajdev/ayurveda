@@ -278,7 +278,19 @@ function setupEventListeners() {
     if (mobileMenuToggle) {
         mobileMenuToggle.addEventListener('click', function() {
             const nav = document.querySelector('.nav');
-            nav.style.display = nav.style.display === 'block' ? 'none' : 'block';
+            this.classList.toggle('active');
+            nav.classList.toggle('mobile-active');
+        });
+        
+        // Close mobile menu when clicking on a link
+        const navLinks = document.querySelectorAll('.nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                const nav = document.querySelector('.nav');
+                const toggle = document.querySelector('.mobile-menu-toggle');
+                nav.classList.remove('mobile-active');
+                toggle.classList.remove('active');
+            });
         });
     }
 }
