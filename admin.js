@@ -172,7 +172,10 @@ function logout() {
 // ===== Load Products =====
 let products = [];
 
-function loadAdminProducts() {
+async function loadAdminProducts() {
+    // Try loading from server first
+    await loadProductsFromServer();
+    
     const storedProducts = localStorage.getItem('ayurvedaProducts');
     if (storedProducts) {
         products = JSON.parse(storedProducts);
@@ -183,9 +186,34 @@ function loadAdminProducts() {
     displayAdminOrders('all');
 }
 
+// ===== Load Products from Server =====
+async function loadProductsFromServer() {
+    try {
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_PRODUCTS));
+        const result = await response.json();
+        
+        if (result.success && result.products.length > 0) {
+            localStorage.setItem('ayurvedaProducts', JSON.stringify(result.products));
+        }
+    } catch (error) {
+        console.error('Error loading products from server:', error);
+    }
+}
+
 // ===== Save Products =====
-function saveProducts() {
+async function saveProducts() {
     localStorage.setItem('ayurvedaProducts', JSON.stringify(products));
+    
+    // Save to server
+    try {
+        await fetch(getApiUrl(API_CONFIG.ENDPOINTS.SAVE_PRODUCTS), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ products: products })
+        });
+    } catch (error) {
+        console.error('Error saving products to server:', error);
+    }
 }
 
 // ===== Display Admin Products =====

@@ -147,6 +147,44 @@ app.get('/get-orders', (req, res) => {
     }
 });
 
+// ===== Products Endpoints =====
+
+// Save products to text file
+app.post('/save-products', (req, res) => {
+    try {
+        const { products } = req.body;
+        const productsFile = path.join(__dirname, 'data', 'products.txt');
+        
+        // Ensure data directory exists
+        const dataDir = path.join(__dirname, 'data');
+        if (!fs.existsSync(dataDir)) {
+            fs.mkdirSync(dataDir);
+        }
+        
+        fs.writeFileSync(productsFile, JSON.stringify(products, null, 2));
+        res.json({ success: true, message: 'Products saved successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get products from text file
+app.get('/get-products', (req, res) => {
+    try {
+        const productsFile = path.join(__dirname, 'data', 'products.txt');
+        
+        if (fs.existsSync(productsFile)) {
+            const data = fs.readFileSync(productsFile, 'utf8');
+            const products = JSON.parse(data);
+            res.json({ success: true, products: products });
+        } else {
+            res.json({ success: true, products: [] });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

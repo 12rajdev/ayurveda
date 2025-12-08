@@ -4,7 +4,7 @@ const API_CONFIG = {
     // In production, this will automatically use the deployed URL
     // In development, it uses localhost:3000
     BASE_URL: window.location.hostname === 'localhost' 
-        ? 'https://ayurveda-6do7.onrender.com' 
+        ? 'http://localhost:3000' 
         : window.location.origin,
     
     // API Endpoints
@@ -13,7 +13,9 @@ const API_CONFIG = {
         GET_USERS: '/get-users',
         SAVE_USERS: '/save-users',
         GET_ORDERS: '/get-orders',
-        SAVE_ORDERS: '/save-orders'
+        SAVE_ORDERS: '/save-orders',
+        GET_PRODUCTS: '/get-products',
+        SAVE_PRODUCTS: '/save-products'
     }
 };
 

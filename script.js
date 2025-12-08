@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadUsersFromServer();
     await loadOrdersFromServer();
     
+    // Load products from server
+    await loadProductsFromServer();
+    
     // Update auth button state
     updateAuthButton();
     
@@ -36,94 +39,139 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 // ===== Load Products from LocalStorage =====
-function loadProducts() {
+async function loadProducts() {
     const storedProducts = localStorage.getItem('ayurvedaProducts');
     if (storedProducts) {
         products = JSON.parse(storedProducts);
     } else {
-        // Default products for demonstration
-        products = [
-            {
-                id: 1,
-                name: 'Rajwadiprash Gold - Ayurvedic Hair Oil',
-                category: 'oils',
-                price: 799,
-                discount: 25,
-                image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=400&fit=crop',
-                description: 'Sugar-free Ayurvedic hair oil enriched with gold, silver & saffron. Natural blend of 21 precious herbs for strong, lustrous and healthy hair growth'
-            },
-            {
-                id: 2,
-                name: 'Dantmanjan - Triphala Dental Powder',
-                category: 'powders',
-                price: 450,
-                discount: 15,
-                image: 'https://images.unsplash.com/photo-1505944357793-972eba8e48f8?w=400&h=400&fit=crop',
-                description: 'Traditional Ayurvedic dental powder with Triphala for strong teeth and healthy gums. Ancient herbal blend for complete oral care and fresh breath'
-            },
-            {
-                id: 3,
-                name: 'Ashwagandha Tablets - Premium Quality',
-                category: 'tablets',
-                price: 1299,
-                discount: 30,
-                image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop',
-                description: 'Premium quality Ashwagandha tablets for stress relief, vitality and overall wellness. Powerful adaptogen for energy, immunity and mental clarity'
-            },
-            {
-                id: 4,
-                name: 'Triphaladi Guggulu - Ayurvedic Face Cream',
-                category: 'creams',
-                price: 599,
-                discount: 20,
-                image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop',
-                description: 'Natural Ayurvedic face cream with Triphala and saffron. Enriched with turmeric for glowing, radiant and youthful skin. Suitable for all skin types'
-            },
-            {
-                id: 5,
-                name: 'Maha Yograj Guggulu - Herbal Tea',
-                category: 'tea',
-                price: 350,
-                discount: 10,
-                image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400&h=400&fit=crop',
-                description: 'Refreshing Ayurvedic herbal tea with holy basil (Tulsi) for immunity boost, digestive health and natural detoxification. Rich in antioxidants'
-            },
-            {
-                id: 6,
-                name: 'Pushpanjali Ras - Neem Face Pack Powder',
-                category: 'powders',
-                price: 299,
-                discount: 15,
-                image: 'https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=400&h=400&fit=crop',
-                description: 'Pure natural neem powder face pack for clear, radiant and acne-free skin. Deep cleanses pores and removes impurities for healthy glowing complexion'
-            },
-            {
-                id: 7,
-                name: 'Vatshekhar Ras - Joint Pain Relief Oil',
-                category: 'oils',
-                price: 899,
-                discount: 35,
-                image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=400&fit=crop',
-                description: 'Traditional Ayurvedic oil blend for effective joint pain relief, improved mobility and flexibility. Helps reduce inflammation and stiffness naturally'
-            },
-            {
-                id: 8,
-                name: 'Brahmi Capsules - Memory & Brain Tonic',
-                category: 'tablets',
-                price: 1499,
-                discount: 40,
-                image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400&h=400&fit=crop',
-                description: 'Premium Brahmi capsules for enhanced memory, concentration and mental clarity. Ancient Ayurvedic brain tonic for cognitive support and stress relief'
-            }
-        ];
-        saveProducts();
+        products = [];
     }
     filteredProducts = [...products];
 }
 
-// ===== Save Products to LocalStorage =====
-function saveProducts() {
+// ===== Save Products to LocalStorage and Server =====
+async function saveProducts() {
     localStorage.setItem('ayurvedaProducts', JSON.stringify(products));
+    
+    // Save to server
+    await saveProductsToServer(products);
+}
+
+// ===== Save Products to Server =====
+async function saveProductsToServer(products) {
+    try {
+        await fetch(getApiUrl(API_CONFIG.ENDPOINTS.SAVE_PRODUCTS), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ products: products })
+        });
+    } catch (error) {
+        console.error('Error saving products to server:', error);
+    }
+}
+
+// ===== Load Products from Server =====
+async function loadProductsFromServer() {
+    try {
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_PRODUCTS));
+        const result = await response.json();
+        
+        if (result.success && result.products.length > 0) {
+            // Load products from server
+            products = result.products;
+            localStorage.setItem('ayurvedaProducts', JSON.stringify(products));
+        } else {
+            // If no products on server, use default products
+            const localProducts = JSON.parse(localStorage.getItem('ayurvedaProducts') || '[]');
+            if (localProducts.length === 0) {
+                // Set default products
+                products = [
+                    {
+                        id: 1,
+                        name: 'Rajwadiprash Gold - Ayurvedic Hair Oil',
+                        category: 'oils',
+                        price: 799,
+                        discount: 25,
+                        image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=400&fit=crop',
+                        description: 'Sugar-free Ayurvedic hair oil enriched with gold, silver & saffron. Natural blend of 21 precious herbs for strong, lustrous and healthy hair growth'
+                    },
+                    {
+                        id: 2,
+                        name: 'Dantmanjan - Triphala Dental Powder',
+                        category: 'powders',
+                        price: 450,
+                        discount: 15,
+                        image: 'https://images.unsplash.com/photo-1505944357793-972eba8e48f8?w=400&h=400&fit=crop',
+                        description: 'Traditional Ayurvedic dental powder with Triphala for strong teeth and healthy gums. Ancient herbal blend for complete oral care and fresh breath'
+                    },
+                    {
+                        id: 3,
+                        name: 'Ashwagandha Tablets - Premium Quality',
+                        category: 'tablets',
+                        price: 1299,
+                        discount: 30,
+                        image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop',
+                        description: 'Premium quality Ashwagandha tablets for stress relief, vitality and overall wellness. Powerful adaptogen for energy, immunity and mental clarity'
+                    },
+                    {
+                        id: 4,
+                        name: 'Triphaladi Guggulu - Ayurvedic Face Cream',
+                        category: 'creams',
+                        price: 599,
+                        discount: 20,
+                        image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop',
+                        description: 'Natural Ayurvedic face cream with Triphala and saffron. Enriched with turmeric for glowing, radiant and youthful skin. Suitable for all skin types'
+                    },
+                    {
+                        id: 5,
+                        name: 'Maha Yograj Guggulu - Herbal Tea',
+                        category: 'tea',
+                        price: 350,
+                        discount: 10,
+                        image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400&h=400&fit=crop',
+                        description: 'Refreshing Ayurvedic herbal tea with holy basil (Tulsi) for immunity boost, digestive health and natural detoxification. Rich in antioxidants'
+                    },
+                    {
+                        id: 6,
+                        name: 'Pushpanjali Ras - Neem Face Pack Powder',
+                        category: 'powders',
+                        price: 299,
+                        discount: 15,
+                        image: 'https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=400&h=400&fit=crop',
+                        description: 'Pure natural neem powder face pack for clear, radiant and acne-free skin. Deep cleanses pores and removes impurities for healthy glowing complexion'
+                    },
+                    {
+                        id: 7,
+                        name: 'Vatshekhar Ras - Joint Pain Relief Oil',
+                        category: 'oils',
+                        price: 899,
+                        discount: 35,
+                        image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=400&fit=crop',
+                        description: 'Traditional Ayurvedic oil blend for effective joint pain relief, improved mobility and flexibility. Helps reduce inflammation and stiffness naturally'
+                    },
+                    {
+                        id: 8,
+                        name: 'Brahmi Capsules - Memory & Brain Tonic',
+                        category: 'tablets',
+                        price: 1499,
+                        discount: 40,
+                        image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400&h=400&fit=crop',
+                        description: 'Premium Brahmi capsules for enhanced memory, concentration and mental clarity. Ancient Ayurvedic brain tonic for cognitive support and stress relief'
+                    }
+                ];
+                localStorage.setItem('ayurvedaProducts', JSON.stringify(products));
+                // Save default products to server
+                await saveProductsToServer(products);
+            } else {
+                products = localProducts;
+            }
+        }
+        filteredProducts = [...products];
+    } catch (error) {
+        console.error('Error loading products from server:', error);
+        // Fallback to localStorage
+        await loadProducts();
+    }
 }
 
 // ===== Display Products =====
