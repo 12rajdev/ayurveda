@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - AyurVeda</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23228B22'/%3E%3Cpath d='M50 20 Q40 35 50 50 Q60 35 50 20 M50 50 Q35 60 50 80 M50 50 Q65 60 50 80' stroke='%23FFF' stroke-width='3' fill='none'/%3E%3C/svg%3E" alt="AyurVeda Logo" class="login-logo">
+                <h2>Admin Login</h2>
+                <p>Access Admin Panel</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Enter password">
+                </div>
+                <div id="loginError" class="error-message"></div>
+                <button type="submit" class="submit-btn">Login</button>
+                <a href="index.html" class="back-link">← Back to Home</a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            // Validate credentials
+            if (username === 'admin' && password === 'admin123') {
+                // Successful login
+                localStorage.setItem('adminLoggedIn', 'true');
+                window.location.href = 'admin.html';
+            } else {
+                // Failed login
+                errorDiv.textContent = 'Invalid username or password!';
+                errorDiv.style.display = 'block';
+                
+                // Clear error after 3 seconds
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

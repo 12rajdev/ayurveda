@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AyurVeda - Natural Healing Products</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23228B22'/%3E%3Cpath d='M50 20 Q40 35 50 50 Q60 35 50 20 M50 50 Q35 60 50 80 M50 50 Q65 60 50 80' stroke='%23FFF' stroke-width='3' fill='none'/%3E%3C/svg%3E" alt="AyurVeda Logo">
+                <span>AyurVeda</span>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="myorder.html">My Orders</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#" onclick="toggleUserAuth(); return false;" class="profile-link" id="authLink">🔐 Login</a></li>
+                    <li><a href="admin-login.html" class="admin-link">Admin</a></li>
+                </ul>
+            </nav>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner Section -->
+    <section class="banner" id="home">
+        <div class="banner-content">
+            <h1 class="banner-title">Discover Natural Healing</h1>
+            <p class="banner-subtitle">Ancient Ayurvedic Wisdom for Modern Wellness</p>
+            <a href="#products" class="banner-btn">Explore Products</a>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section" id="products">
+        <div class="container">
+            <h2 class="section-title">Our Products</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <input type="text" id="searchInput" placeholder="Search products..." class="filter-input">
+                </div>
+                <div class="filter-group">
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="oils">Herbal Oils</option>
+                        <option value="powders">Ayurvedic Powders</option>
+                        <option value="tablets">Herbal Tablets</option>
+                        <option value="creams">Ayurvedic Creams</option>
+                        <option value="tea">Herbal Teas</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select id="priceFilter" class="filter-select">
+                        <option value="">All Prices</option>
+                        <option value="0-500">₹0 - ₹500</option>
+                        <option value="500-1000">₹500 - ₹1000</option>
+                        <option value="1000-2000">₹1000 - ₹2000</option>
+                        <option value="2000+">₹2000+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select id="discountFilter" class="filter-select">
+                        <option value="">All Discounts</option>
+                        <option value="10">10% & Above</option>
+                        <option value="20">20% & Above</option>
+                        <option value="30">30% & Above</option>
+                        <option value="40">40% & Above</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="products-section">
+        <div class="container">
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be dynamically loaded here -->
+            </div>
+            <div id="noProducts" class="no-products" style="display: none;">
+                <p>No products found matching your filters.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Book Order Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content order-modal-enhanced">
+            <span class="close-modal">&times;</span>
+            <h2>🛒 Book Your Order</h2>
+            
+            <!-- Product Summary Card -->
+            <div id="productSummaryCard" class="product-summary-card">
+                <div class="product-summary-header">
+                    <img id="orderProductImage" src="" alt="Product" class="order-product-img">
+                    <div class="order-product-info">
+                        <h3 id="orderProductName">Product Name</h3>
+                        <p id="orderProductDesc" class="product-desc-short">Product description</p>
+                    </div>
+                </div>
+                
+                <div class="price-breakdown">
+                    <div class="price-row">
+                        <span>Original Price:</span>
+                        <span id="orderOriginalPrice" class="price-original">₹0</span>
+                    </div>
+                    <div class="price-row discount-row">
+                        <span>Discount <span id="orderDiscountPercent" class="discount-badge">0%</span>:</span>
+                        <span id="orderDiscountAmount" class="price-discount">- ₹0</span>
+                    </div>
+                    <div class="price-row total-row">
+                        <span>Final Price:</span>
+                        <span id="orderFinalPrice" class="price-final">₹0</span>
+                    </div>
+                    <div class="savings-badge">
+                        🎉 You save <span id="orderSavingsAmount">₹0</span>!
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Registered Customer Display -->
+            <div id="registeredCustomerInfo" style="display: none;">
+                <div class="customer-info-card">
+                    <h3>📋 Delivery Information</h3>
+                    <div class="info-display">
+                        <div class="info-item">
+                            <span class="info-label">👤 Name:</span>
+                            <span id="displayName" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">📱 Mobile:</span>
+                            <span id="displayMobile" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">📍 Address:</span>
+                            <span id="displayAddress" class="info-value"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Options -->
+                <div class="payment-options-card">
+                    <h3>💳 Payment Method</h3>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="cod" checked>
+                            <div class="payment-option-content">
+                                <span class="payment-icon">💵</span>
+                                <div>
+                                    <div class="payment-title">Cash on Delivery</div>
+                                    <div class="payment-subtitle">Pay when you receive</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="upi">
+                            <div class="payment-option-content">
+                                <span class="payment-icon">📱</span>
+                                <div>
+                                    <div class="payment-title">UPI Payment</div>
+                                    <div class="payment-subtitle">PhonePe, GPay, Paytm</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="card">
+                            <div class="payment-option-content">
+                                <span class="payment-icon">💳</span>
+                                <div>
+                                    <div class="payment-title">Card Payment</div>
+                                    <div class="payment-subtitle">Credit/Debit Card</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="button" class="submit-btn confirm-order-btn" onclick="quickBookOrder()">
+                    <span class="btn-icon">✓</span> Confirm Order
+                </button>
+            </div>
+            
+            <!-- Registration Form for New Customers -->
+            <form id="orderForm" style="display: none;">
+                <div class="new-customer-header">
+                    <h3>📝 Enter Delivery Details</h3>
+                    <p>Please provide your information for order delivery</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="customerName">👤 Full Name *</label>
+                    <input type="text" id="customerName" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="customerMobile">📱 Mobile Number *</label>
+                    <input type="tel" id="customerMobile" required placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}">
+                </div>
+                <div class="form-group">
+                    <label for="customerAddress">📍 Complete Address *</label>
+                    <textarea id="customerAddress" required placeholder="House/Flat No., Area, Landmark, City, State, PIN" rows="4"></textarea>
+                </div>
+                
+                <!-- Payment Options for New Customers -->
+                <div class="payment-options-card">
+                    <h3>💳 Payment Method</h3>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="newPaymentMethod" value="cod" checked>
+                            <div class="payment-option-content">
+                                <span class="payment-icon">💵</span>
+                                <div>
+                                    <div class="payment-title">Cash on Delivery</div>
+                                    <div class="payment-subtitle">Pay when you receive</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="newPaymentMethod" value="upi">
+                            <div class="payment-option-content">
+                                <span class="payment-icon">📱</span>
+                                <div>
+                                    <div class="payment-title">UPI Payment</div>
+                                    <div class="payment-subtitle">PhonePe, GPay, Paytm</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="newPaymentMethod" value="card">
+                            <div class="payment-option-content">
+                                <span class="payment-icon">💳</span>
+                                <div>
+                                    <div class="payment-title">Card Payment</div>
+                                    <div class="payment-subtitle">Credit/Debit Card</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <input type="hidden" id="selectedProductId">
+                <button type="submit" class="submit-btn">
+                    <span class="btn-icon">🛍️</span> Place Order
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login/Signup Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAuthModal()">&times;</span>
+            <h2 id="authModalTitle">🔐 Login</h2>
+            
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginMobile">📱 Mobile Number *</label>
+                    <input type="tel" id="loginMobile" required placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}" maxlength="10">
+                </div>
+                <button type="submit" class="submit-btn">
+                    <span class="btn-icon">🔓</span> Login
+                </button>
+                <p class="auth-switch">Don't have an account? <a href="#" onclick="showSignupForm(); return false;">Sign Up</a></p>
+            </form>
+            
+            <!-- Signup Form -->
+            <form id="signupForm" style="display: none;" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label for="signupName">👤 Full Name *</label>
+                    <input type="text" id="signupName" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="signupMobile">📱 Mobile Number *</label>
+                    <input type="tel" id="signupMobile" required placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}" maxlength="10">
+                </div>
+                <div class="form-group">
+                    <label for="signupAddress">📍 Complete Address *</label>
+                    <textarea id="signupAddress" required placeholder="House/Flat No., Area, Landmark, City, State, PIN" rows="4"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <span class="btn-icon">✓</span> Sign Up
+                </button>
+                <p class="auth-switch">Already have an account? <a href="#" onclick="showLoginForm(); return false;">Login</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+            <h2>My Profile</h2>
+            <form id="profileForm" onsubmit="updateProfile(event)">
+                <div class="form-group">
+                    <label for="profileName">Full Name *</label>
+                    <input type="text" id="profileName" required placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="profileMobile">Mobile Number *</label>
+                    <input type="tel" id="profileMobile" required placeholder="Mobile number" pattern="[0-9]{10}" readonly style="background: #f0f0f0; cursor: not-allowed;">
+                    <small style="color: #666;">Mobile number cannot be changed</small>
+                </div>
+                <div class="form-group">
+                    <label for="profileAddress">Address *</label>
+                    <textarea id="profileAddress" required placeholder="Enter your complete address" rows="4"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Update Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Message Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content success-modal">
+            <div class="success-icon">✓</div>
+            <h2>Order Booked Successfully!</h2>
+            <div id="orderDetailsSuccess">
+                <!-- Order details will be shown here -->
+            </div>
+            <button class="submit-btn" onclick="window.location.href='myorder.html'">View My Orders</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 AyurVeda. All Rights Reserved. | Natural Healing for Better Living</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

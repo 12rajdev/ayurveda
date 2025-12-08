@@ -1,0 +1,16 @@
+[
+  {
+    "userId": "USER1765190789595",
+    "name": "sdfs",
+    "mobile": "7987878788",
+    "address": "sdf",
+    "registeredOn": "2025-12-08T10:46:29.595Z"
+  },
+  {
+    "userId": "USER1765191541134",
+    "name": "devendra kumar mishra",
+    "mobile": "7715843183",
+    "address": "sdf",
+    "registeredOn": "2025-12-08T10:59:01.134Z"
+  }
+]

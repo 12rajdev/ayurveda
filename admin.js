@@ -1,0 +1,604 @@
+// ===== Check Admin Authentication =====
+document.addEventListener('DOMContentLoaded', async function() {
+    const isLoggedIn = localStorage.getItem('adminLoggedIn');
+    
+    if (!isLoggedIn || isLoggedIn !== 'true') {
+        window.location.href = 'admin-login.html';
+        return;
+    }
+    
+    // Load users and orders from server if localStorage is empty
+    await loadUsersFromServer();
+    await loadOrdersFromServer();
+    
+    loadAdminProducts();
+    displayRegisteredUsers();
+    setupAdminEventListeners();
+});
+
+// ===== Load Users from Server =====
+async function loadUsersFromServer() {
+    try {
+        const response = await fetch('http://localhost:3000/get-users');
+        const result = await response.json();
+        
+        if (result.success && result.users.length > 0) {
+            const localUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            if (localUsers.length === 0) {
+                localStorage.setItem('registeredUsers', JSON.stringify(result.users));
+            }
+        }
+    } catch (error) {
+        console.error('Error loading users from server:', error);
+    }
+}
+
+// ===== Load Orders from Server =====
+async function loadOrdersFromServer() {
+    try {
+        const response = await fetch('http://localhost:3000/get-orders');
+        const result = await response.json();
+        
+        if (result.success && result.orders.length > 0) {
+            const localOrders = JSON.parse(localStorage.getItem('ayurvedaOrders') || '[]');
+            if (localOrders.length === 0) {
+                localStorage.setItem('ayurvedaOrders', JSON.stringify(result.orders));
+            }
+        }
+    } catch (error) {
+        console.error('Error loading orders from server:', error);
+    }
+}
+
+
+// ===== Image Upload Handler =====
+async function handleImageUpload(input) {
+    const file = input.files[0];
+    if (file) {
+        // Show file name
+        document.getElementById('imageFileName').textContent = file.name;
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            const imagePreview = document.getElementById('imagePreview');
+            imagePreview.style.display = 'block';
+            
+            // Scroll to the preview
+            setTimeout(() => {
+                imagePreview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        };
+        reader.readAsDataURL(file);
+        
+        // Upload to server
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        try {
+            const response = await fetch('http://localhost:3000/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Store the image path
+                document.getElementById('productImagePath').value = result.imagePath;
+                
+                // Clear URL input
+                document.getElementById('productImage').value = '';
+                
+                // Scroll to bottom of form
+                setTimeout(() => {
+                    const imagePreview = document.getElementById('imagePreview');
+                    if (imagePreview) {
+                        imagePreview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 200);
+            } else {
+                alert('Upload failed: ' + result.error);
+            }
+        } catch (error) {
+            alert('Upload error: ' + error.message + '\nMake sure the server is running with: npm start');
+        }
+    }
+}
+
+// ===== Edit Image Upload Handler =====
+async function handleEditImageUpload(input) {
+    const file = input.files[0];
+    if (file) {
+        // Show file name
+        document.getElementById('editImageFileName').textContent = file.name;
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('editPreviewImg').src = e.target.result;
+            const editImagePreview = document.getElementById('editImagePreview');
+            editImagePreview.style.display = 'block';
+            
+            // Scroll to the preview in modal
+            setTimeout(() => {
+                editImagePreview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        };
+        reader.readAsDataURL(file);
+        
+        // Upload to server
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        try {
+            const response = await fetch('http://localhost:3000/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Store the image path
+                document.getElementById('editProductImagePath').value = result.imagePath;
+                
+                // Clear URL input
+                document.getElementById('editProductImage').value = '';
+                
+                // Scroll to bottom of modal form
+                setTimeout(() => {
+                    const editImagePreview = document.getElementById('editImagePreview');
+                    if (editImagePreview) {
+                        editImagePreview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 200);
+            } else {
+                alert('Upload failed: ' + result.error);
+            }
+        } catch (error) {
+            alert('Upload error: ' + error.message + '\nMake sure the server is running with: npm start');
+        }
+    }
+}
+
+// ===== Logout Function =====
+function logout() {
+    localStorage.removeItem('adminLoggedIn');
+    window.location.href = 'admin-login.html';
+}
+
+// ===== Load Products =====
+let products = [];
+
+function loadAdminProducts() {
+    const storedProducts = localStorage.getItem('ayurvedaProducts');
+    if (storedProducts) {
+        products = JSON.parse(storedProducts);
+    } else {
+        products = [];
+    }
+    displayAdminProducts();
+    displayAdminOrders('all');
+}
+
+// ===== Save Products =====
+function saveProducts() {
+    localStorage.setItem('ayurvedaProducts', JSON.stringify(products));
+}
+
+// ===== Display Admin Products =====
+function displayAdminProducts() {
+    const productsList = document.getElementById('adminProductsList');
+    const totalProducts = document.getElementById('totalProducts');
+    
+    totalProducts.textContent = products.length;
+    
+    if (products.length === 0) {
+        productsList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No products added yet. Start by adding your first product!</p>';
+        return;
+    }
+    
+    productsList.innerHTML = products.map(product => {
+        const discountedPrice = Math.round(product.price - (product.price * product.discount / 100));
+        
+        return `
+            <div class="admin-product-item">
+                <img src="${product.image}" alt="${product.name}" class="admin-product-image" onerror="this.src='https://via.placeholder.com/80x80/228B22/FFFFFF?text=Product'">
+                <div class="admin-product-details">
+                    <h3>${product.name}</h3>
+                    <p><strong>Category:</strong> ${getCategoryName(product.category)}</p>
+                    <p><strong>Price:</strong> ₹${discountedPrice} <span style="text-decoration: line-through; color: #999;">₹${product.price}</span> <span style="color: #ff4444;">(${product.discount}% OFF)</span></p>
+                    ${product.description ? `<p><strong>Description:</strong> ${product.description}</p>` : ''}
+                </div>
+                <div class="admin-product-actions">
+                    <button class="btn-edit" onclick="editProduct(${product.id})">Edit</button>
+                    <button class="btn-delete" onclick="deleteProduct(${product.id})">Delete</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ===== Get Category Name =====
+function getCategoryName(category) {
+    const categories = {
+        'oils': 'Herbal Oils',
+        'powders': 'Ayurvedic Powders',
+        'tablets': 'Herbal Tablets',
+        'creams': 'Ayurvedic Creams',
+        'tea': 'Herbal Teas'
+    };
+    return categories[category] || category;
+}
+
+// ===== Setup Event Listeners =====
+function setupAdminEventListeners() {
+    // Add product form
+    const addProductForm = document.getElementById('addProductForm');
+    if (addProductForm) {
+        addProductForm.addEventListener('submit', handleAddProduct);
+    }
+    
+    // Edit product form
+    const editProductForm = document.getElementById('editProductForm');
+    if (editProductForm) {
+        editProductForm.addEventListener('submit', handleEditProduct);
+    }
+}
+
+// ===== Add Product =====
+function handleAddProduct(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('productName').value.trim();
+    const category = document.getElementById('productCategory').value;
+    const price = parseFloat(document.getElementById('productPrice').value);
+    const discount = parseFloat(document.getElementById('productDiscount').value);
+    const imagePath = document.getElementById('productImagePath').value;
+    const imageUrl = document.getElementById('productImage').value.trim();
+    const description = document.getElementById('productDescription').value.trim();
+    
+    // Get image source (uploaded file path or URL)
+    const image = imagePath || imageUrl;
+    
+    // Validation
+    if (!name || !category || !price || isNaN(price) || !discount || isNaN(discount) || !image) {
+        alert('Please fill in all required fields including an image!');
+        return;
+    }
+    
+    if (price < 0) {
+        alert('Price cannot be negative!');
+        return;
+    }
+    
+    if (discount < 0 || discount > 100) {
+        alert('Discount must be between 0 and 100!');
+        return;
+    }
+    
+    // Create new product
+    const newProduct = {
+        id: Date.now(),
+        name: name,
+        category: category,
+        price: price,
+        discount: discount,
+        image: image,
+        description: description
+    };
+    
+    products.push(newProduct);
+    saveProducts();
+    displayAdminProducts();
+    
+    // Reset form
+    e.target.reset();
+    document.getElementById('imageFileName').textContent = 'No file chosen';
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('productImagePath').value = '';
+    
+    // Show success message
+    alert('Product added successfully!');
+}
+
+// ===== Edit Product =====
+function editProduct(productId) {
+    const product = products.find(p => p.id === productId);
+    
+    if (!product) {
+        alert('Product not found!');
+        return;
+    }
+    
+    // Populate edit form
+    document.getElementById('editProductId').value = product.id;
+    document.getElementById('editProductName').value = product.name;
+    document.getElementById('editProductCategory').value = product.category;
+    document.getElementById('editProductPrice').value = product.price;
+    document.getElementById('editProductDiscount').value = product.discount;
+    document.getElementById('editProductImage').value = product.image;
+    document.getElementById('editProductDescription').value = product.description || '';
+    
+    // Show edit modal
+    document.getElementById('editModal').style.display = 'block';
+}
+
+// ===== Handle Edit Product Submit =====
+function handleEditProduct(e) {
+    e.preventDefault();
+    
+    const productId = parseInt(document.getElementById('editProductId').value);
+    const name = document.getElementById('editProductName').value.trim();
+    const category = document.getElementById('editProductCategory').value;
+    const price = parseFloat(document.getElementById('editProductPrice').value);
+    const discount = parseFloat(document.getElementById('editProductDiscount').value);
+    const imagePath = document.getElementById('editProductImagePath').value;
+    const imageUrl = document.getElementById('editProductImage').value.trim();
+    const description = document.getElementById('editProductDescription').value.trim();
+    
+    // Get image source (uploaded file path or URL)
+    const image = imagePath || imageUrl;
+    
+    // Validation
+    if (!name || !category || !price || isNaN(price) || !discount || isNaN(discount) || !image) {
+        alert('Please fill in all required fields including an image!');
+        return;
+    }
+    
+    if (price < 0) {
+        alert('Price cannot be negative!');
+        return;
+    }
+    
+    if (discount < 0 || discount > 100) {
+        alert('Discount must be between 0 and 100!');
+        return;
+    }
+    
+    // Find and update product
+    const productIndex = products.findIndex(p => p.id === productId);
+    
+    if (productIndex === -1) {
+        alert('Product not found!');
+        return;
+    }
+    
+    products[productIndex] = {
+        id: productId,
+        name: name,
+        category: category,
+        price: price,
+        discount: discount,
+        image: image,
+        description: description
+    };
+    
+    saveProducts();
+    displayAdminProducts();
+    
+    // Close modal
+    closeEditModal();
+    
+    // Show success message
+    alert('Product updated successfully!');
+}
+
+// ===== Delete Product =====
+function deleteProduct(productId) {
+    if (!confirm('Are you sure you want to delete this product?')) {
+        return;
+    }
+    
+    products = products.filter(p => p.id !== productId);
+    saveProducts();
+    displayAdminProducts();
+    
+    alert('Product deleted successfully!');
+}
+
+// ===== Close Edit Modal =====
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+    document.getElementById('editProductForm').reset();
+    document.getElementById('editImageFileName').textContent = 'No file chosen';
+    document.getElementById('editImagePreview').style.display = 'none';
+    document.getElementById('editProductImagePath').value = '';
+}
+
+// ===== Close Modal on Outside Click =====
+window.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal')) {
+        e.target.style.display = 'none';
+    }
+});
+
+// ===== Display Admin Orders =====
+let currentOrderFilter = 'all';
+
+function displayAdminOrders(filter = 'all') {
+    currentOrderFilter = filter;
+    const ordersListDiv = document.getElementById('adminOrdersList');
+    let orders = JSON.parse(localStorage.getItem('ayurvedaOrders') || '[]');
+    
+    // Update counts
+    const allCount = orders.length;
+    const progressCount = orders.filter(o => o.status === 'in-progress').length;
+    const completedCount = orders.filter(o => o.status === 'completed').length;
+    
+    document.getElementById('allOrdersCount').textContent = allCount;
+    document.getElementById('progressOrdersCount').textContent = progressCount;
+    document.getElementById('completedOrdersCount').textContent = completedCount;
+    
+    // Filter orders
+    if (filter === 'in-progress') {
+        orders = orders.filter(o => o.status === 'in-progress');
+    } else if (filter === 'completed') {
+        orders = orders.filter(o => o.status === 'completed');
+    }
+    
+    if (orders.length === 0) {
+        ordersListDiv.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No orders found.</p>';
+        return;
+    }
+    
+    // Sort by newest first
+    orders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+    
+    ordersListDiv.innerHTML = orders.map(order => {
+        const orderDate = new Date(order.orderDate);
+        const deliveryDate = new Date(order.deliveryDate);
+        const formattedOrderDate = orderDate.toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        const formattedDeliveryDate = deliveryDate.toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        
+        const statusClass = order.status === 'completed' ? 'status-completed' : 'status-progress';
+        const statusText = order.status === 'completed' ? 'Completed' : 'In Progress';
+        
+        return `
+            <div class="admin-order-card">
+                <div class="admin-order-header">
+                    <div>
+                        <h3>Order #${order.id}</h3>
+                        <span class="admin-order-date">${formattedOrderDate}</span>
+                    </div>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+                <div class="admin-order-body">
+                    <div class="admin-order-row">
+                        <div class="admin-order-product">
+                            <img src="${order.productImage}" alt="${order.productName}" onerror="this.src='https://via.placeholder.com/60x60/228B22/FFFFFF?text=Product'">
+                            <div>
+                                <strong>${order.productName}</strong>
+                                <p>₹${order.price} <span style="text-decoration: line-through; color: #999;">₹${order.originalPrice}</span> <span style="color: #ff4444;">(${order.discount}% OFF)</span></p>
+                            </div>
+                        </div>
+                        <div class="admin-order-customer">
+                            <p><strong>Customer:</strong> ${order.customerName}</p>
+                            <p><strong>Mobile:</strong> ${order.customerMobile}</p>
+                            <p><strong>Address:</strong> ${order.customerAddress}</p>
+                        </div>
+                    </div>
+                    <div class="admin-order-footer">
+                        <p><strong>Expected Delivery:</strong> ${formattedDeliveryDate}</p>
+                        ${order.status === 'in-progress' 
+                            ? `<button class="btn-complete" onclick="markOrderAsCompleted('${order.id}')">✓ Mark as Completed</button>`
+                            : '<span class="completed-badge">✓ Order Delivered</span>'
+                        }
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ===== Filter Orders =====
+function filterOrders(filter) {
+    // Update active tab
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    displayAdminOrders(filter);
+}
+
+// ===== Mark Order as Completed =====
+async function markOrderAsCompleted(orderId) {
+    if (!confirm('Mark this order as completed and delivered?')) {
+        return;
+    }
+    
+    let orders = JSON.parse(localStorage.getItem('ayurvedaOrders') || '[]');
+    const orderIndex = orders.findIndex(o => o.id === orderId);
+    
+    if (orderIndex !== -1) {
+        orders[orderIndex].status = 'completed';
+        localStorage.setItem('ayurvedaOrders', JSON.stringify(orders));
+        
+        // Save to server
+        try {
+            await fetch('http://localhost:3000/save-orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orders: orders })
+            });
+        } catch (error) {
+            console.error('Error saving orders to server:', error);
+        }
+        
+        displayAdminOrders(currentOrderFilter);
+        alert('Order marked as completed!');
+    }
+}
+
+// ===== Display Registered Users =====
+function displayRegisteredUsers() {
+    const usersTableBody = document.getElementById('usersTableBody');
+    const totalUsersSpan = document.getElementById('totalUsers');
+    
+    if (!usersTableBody || !totalUsersSpan) {
+        return;
+    }
+    
+    // Get all registered users
+    let users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    
+    // Get all orders to count orders per user
+    const orders = JSON.parse(localStorage.getItem('ayurvedaOrders') || '[]');
+    
+    totalUsersSpan.textContent = users.length;
+    
+    if (users.length === 0) {
+        usersTableBody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
+                    No registered users yet.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Sort by registration date (newest first)
+    users.sort((a, b) => new Date(b.registeredOn) - new Date(a.registeredOn));
+    
+    usersTableBody.innerHTML = users.map(user => {
+        // Count orders for this user
+        const userOrders = orders.filter(order => 
+            order.customerMobile === user.mobile
+        ).length;
+        
+        const registeredDate = new Date(user.registeredOn);
+        const formattedDate = registeredDate.toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        return `
+            <tr>
+                <td><strong>${user.userId}</strong></td>
+                <td>${user.name}</td>
+                <td>${user.mobile}</td>
+                <td>${user.address}</td>
+                <td>${formattedDate}</td>
+                <td><span style="color: #228B22; font-weight: bold;">${userOrders}</span></td>
+            </tr>
+        `;
+    }).join('');
+}
+

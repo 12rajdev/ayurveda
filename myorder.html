@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - AyurVeda</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23228B22'/%3E%3Cpath d='M50 20 Q40 35 50 50 Q60 35 50 20 M50 50 Q35 60 50 80 M50 50 Q65 60 50 80' stroke='%23FFF' stroke-width='3' fill='none'/%3E%3C/svg%3E" alt="AyurVeda Logo">
+                <span>AyurVeda</span>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#products">Products</a></li>
+                    <li><a href="myorder.html" class="active">My Orders</a></li>
+                    <li><a href="index.html#about">About</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                    <li><a href="#" onclick="toggleUserAuth(); return false;" class="profile-link" id="authLink">🔐 Login</a></li>
+                    <li><a href="admin-login.html" class="admin-link">Admin</a></li>
+                </ul>
+            </nav>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- My Orders Section -->
+    <section class="orders-section" id="orders">
+        <div class="container">
+            <h2 class="section-title">My Orders</h2>
+            <div class="customer-orders-tabs">
+                <button class="customer-tab-btn active" onclick="filterCustomerOrders('all')">All Orders (<span id="customerAllCount">0</span>)</button>
+                <button class="customer-tab-btn" onclick="filterCustomerOrders('in-progress')">In Progress (<span id="customerProgressCount">0</span>)</button>
+                <button class="customer-tab-btn" onclick="filterCustomerOrders('completed')">Completed (<span id="customerCompletedCount">0</span>)</button>
+                <button class="customer-tab-btn" onclick="filterCustomerOrders('cancelled')">Cancelled (<span id="customerCancelledCount">0</span>)</button>
+                <button class="customer-tab-btn" onclick="filterCustomerOrders('transactions')">Transaction Details</button>
+            </div>
+            <div id="ordersContainer" class="orders-container">
+                <!-- Orders will be displayed here -->
+            </div>
+            <div id="transactionsContainer" class="transactions-container" style="display: none;">
+                <!-- Transaction details will be displayed here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+            <h2>My Profile</h2>
+            <form id="profileForm" onsubmit="updateProfile(event)">
+                <div class="form-group">
+                    <label for="profileName">Full Name *</label>
+                    <input type="text" id="profileName" required placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="profileMobile">Mobile Number *</label>
+                    <input type="tel" id="profileMobile" required placeholder="Mobile number" pattern="[0-9]{10}" readonly style="background: #f0f0f0; cursor: not-allowed;">
+                    <small style="color: #666;">Mobile number cannot be changed</small>
+                </div>
+                <div class="form-group">
+                    <label for="profileAddress">Address *</label>
+                    <textarea id="profileAddress" required placeholder="Enter your complete address" rows="4"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Update Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 AyurVeda. All Rights Reserved. | Natural Healing for Better Living</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

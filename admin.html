@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - AyurVeda</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <div class="container">
+            <div class="logo">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23228B22'/%3E%3Cpath d='M50 20 Q40 35 50 50 Q60 35 50 20 M50 50 Q35 60 50 80 M50 50 Q65 60 50 80' stroke='%23FFF' stroke-width='3' fill='none'/%3E%3C/svg%3E" alt="AyurVeda Logo">
+                <span>Admin Panel</span>
+            </div>
+            <div class="admin-actions">
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-container">
+        <div class="container">
+            <div class="admin-grid">
+                <!-- Add Product Section -->
+                <div class="admin-card">
+                    <h2>Add New Product</h2>
+                    <form id="addProductForm">
+                        <div class="form-group">
+                            <label for="productName">Product Name *</label>
+                            <input type="text" id="productName" required placeholder="Enter product name">
+                        </div>
+                        <div class="form-group">
+                            <label for="productCategory">Category *</label>
+                            <select id="productCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="oils">Herbal Oils</option>
+                                <option value="powders">Ayurvedic Powders</option>
+                                <option value="tablets">Herbal Tablets</option>
+                                <option value="creams">Ayurvedic Creams</option>
+                                <option value="tea">Herbal Teas</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productPrice">Price (₹) *</label>
+                                <input type="number" id="productPrice" required placeholder="Enter price" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="productDiscount">Discount (%) *</label>
+                                <input type="number" id="productDiscount" required placeholder="Enter discount" min="0" max="100">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productImage">Product Image *</label>
+                            <div class="image-upload-section">
+                                <input type="file" id="productImageFile" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
+                                <button type="button" class="upload-btn" onclick="document.getElementById('productImageFile').click()">Choose Image File</button>
+                                <span id="imageFileName" style="margin-left: 10px; color: #666;">No file chosen</span>
+                            </div>
+                            <input type="text" id="productImage" placeholder="Or enter image URL" style="margin-top: 10px;">
+                            <input type="hidden" id="productImagePath">
+                            <div id="imagePreview" style="margin-top: 10px; display: none;">
+                                <img id="previewImg" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #228B22; border-radius: 8px;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productDescription">Description</label>
+                            <textarea id="productDescription" placeholder="Enter product description" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Add Product</button>
+                    </form>
+                </div>
+
+                <!-- Products List Section -->
+                <div class="admin-card products-list-card">
+                    <h2>All Products</h2>
+                    <div class="products-count">
+                        Total Products: <span id="totalProducts">0</span>
+                    </div>
+                    <div class="admin-products-list" id="adminProductsList">
+                        <!-- Products will be listed here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Registered Users Section -->
+            <div class="admin-section">
+                <div class="admin-card full-width-card">
+                    <h2>Registered Users</h2>
+                    <div class="users-count">
+                        Total Users: <span id="totalUsers">0</span>
+                    </div>
+                    <div class="admin-users-table">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Full Name</th>
+                                    <th>Mobile</th>
+                                    <th>Address</th>
+                                    <th>Registered On</th>
+                                    <th>Total Orders</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be listed here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Orders Management Section -->
+            <div class="admin-section">
+                <div class="admin-card full-width-card">
+                    <h2>Orders Management</h2>
+                    <div class="orders-filter-tabs">
+                        <button class="tab-btn active" onclick="filterOrders('all')">All Orders (<span id="allOrdersCount">0</span>)</button>
+                        <button class="tab-btn" onclick="filterOrders('in-progress')">In Progress (<span id="progressOrdersCount">0</span>)</button>
+                        <button class="tab-btn" onclick="filterOrders('completed')">Completed (<span id="completedOrdersCount">0</span>)</button>
+                    </div>
+                    <div class="admin-orders-list" id="adminOrdersList">
+                        <!-- Orders will be listed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Product</h2>
+            <form id="editProductForm">
+                <div class="form-group">
+                    <label for="editProductName">Product Name *</label>
+                    <input type="text" id="editProductName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editProductCategory">Category *</label>
+                    <select id="editProductCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="oils">Herbal Oils</option>
+                        <option value="powders">Ayurvedic Powders</option>
+                        <option value="tablets">Herbal Tablets</option>
+                        <option value="creams">Ayurvedic Creams</option>
+                        <option value="tea">Herbal Teas</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editProductPrice">Price (₹) *</label>
+                        <input type="number" id="editProductPrice" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="editProductDiscount">Discount (%) *</label>
+                        <input type="number" id="editProductDiscount" required min="0" max="100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editProductImage">Product Image *</label>
+                    <div class="image-upload-section">
+                        <input type="file" id="editProductImageFile" accept="image/*" style="display: none;" onchange="handleEditImageUpload(this)">
+                        <button type="button" class="upload-btn" onclick="document.getElementById('editProductImageFile').click()">Choose Image File</button>
+                        <span id="editImageFileName" style="margin-left: 10px; color: #666;">No file chosen</span>
+                    </div>
+                    <input type="text" id="editProductImage" placeholder="Or enter image URL" style="margin-top: 10px;">
+                    <input type="hidden" id="editProductImagePath">
+                    <div id="editImagePreview" style="margin-top: 10px; display: none;">
+                        <img id="editPreviewImg" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #228B22; border-radius: 8px;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editProductDescription">Description</label>
+                    <textarea id="editProductDescription" rows="3"></textarea>
+                </div>
+                <input type="hidden" id="editProductId">
+                <button type="submit" class="submit-btn">Update Product</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
