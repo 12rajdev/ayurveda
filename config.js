@@ -3,8 +3,12 @@ const API_CONFIG = {
     // Base URL for API calls
     // In production, this will automatically use the deployed URL
     // In development, it uses localhost:3000
-    BASE_URL: window.location.hostname === 'localhost' 
-        ? 'http://localhost:3000' 
+    // BASE_URL: window.location.hostname === 'localhost' 
+    //     ? 'http://localhost:3000' 
+    //     : window.location.origin,
+    
+  BASE_URL: window.location.hostname === 'localhost' 
+        ? 'https://ayurveda-6do7.onrender.com' 
         : window.location.origin,
     
     // API Endpoints
