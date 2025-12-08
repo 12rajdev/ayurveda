@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 // ===== Load Users from Server =====
 async function loadUsersFromServer() {
     try {
-        const response = await fetch('http://localhost:3000/get-users');
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_USERS));
         const result = await response.json();
         
         if (result.success && result.users.length > 0) {
@@ -36,7 +36,7 @@ async function loadUsersFromServer() {
 // ===== Load Orders from Server =====
 async function loadOrdersFromServer() {
     try {
-        const response = await fetch('http://localhost:3000/get-orders');
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_ORDERS));
         const result = await response.json();
         
         if (result.success && result.orders.length > 0) {
@@ -77,7 +77,7 @@ async function handleImageUpload(input) {
         formData.append('image', file);
         
         try {
-            const response = await fetch('http://localhost:3000/upload-image', {
+            const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.UPLOAD_IMAGE), {
                 method: 'POST',
                 body: formData
             });
@@ -133,7 +133,7 @@ async function handleEditImageUpload(input) {
         formData.append('image', file);
         
         try {
-            const response = await fetch('http://localhost:3000/upload-image', {
+            const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.UPLOAD_IMAGE), {
                 method: 'POST',
                 body: formData
             });
@@ -529,7 +529,7 @@ async function markOrderAsCompleted(orderId) {
         
         // Save to server
         try {
-            await fetch('http://localhost:3000/save-orders', {
+            await fetch(getApiUrl(API_CONFIG.ENDPOINTS.SAVE_ORDERS), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orders: orders })

@@ -941,7 +941,7 @@ async function updateRegisteredUser(name, mobile, address) {
     
     // Save to server text file
     try {
-        await fetch('http://localhost:3000/save-users', {
+        await fetch(getApiUrl(API_CONFIG.ENDPOINTS.SAVE_USERS), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ users: users })
@@ -954,7 +954,7 @@ async function updateRegisteredUser(name, mobile, address) {
 // ===== Load Users from Server =====
 async function loadUsersFromServer() {
     try {
-        const response = await fetch('http://localhost:3000/get-users');
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_USERS));
         const result = await response.json();
         
         if (result.success && result.users.length > 0) {
@@ -972,7 +972,7 @@ async function loadUsersFromServer() {
 // ===== Save Orders to Server =====
 async function saveOrdersToServer(orders) {
     try {
-        await fetch('http://localhost:3000/save-orders', {
+        await fetch(getApiUrl(API_CONFIG.ENDPOINTS.SAVE_ORDERS), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ orders: orders })
@@ -985,7 +985,7 @@ async function saveOrdersToServer(orders) {
 // ===== Load Orders from Server =====
 async function loadOrdersFromServer() {
     try {
-        const response = await fetch('http://localhost:3000/get-orders');
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_ORDERS));
         const result = await response.json();
         
         if (result.success && result.orders.length > 0) {
