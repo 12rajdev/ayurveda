@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadOrdersFromServer();
     
     loadAdminProducts();
+    loadCategories();
     displayRegisteredUsers();
     setupAdminEventListeners();
 });
@@ -629,4 +630,210 @@ function displayRegisteredUsers() {
         `;
     }).join('');
 }
+
+// ===== Category Management Functions =====
+
+// Load categories from server
+async function loadCategories() {
+    try {
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_CATEGORIES));
+        const result = await response.json();
+        
+        if (result.success && result.categories) {
+            displayCategories(result.categories);
+            updateCategoryDropdowns(result.categories);
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+}
+
+// Display categories in admin panel
+function displayCategories(categories) {
+    const categoriesList = document.getElementById('categoriesList');
+    if (!categoriesList) return;
+    
+    if (categories.length === 0) {
+        categoriesList.innerHTML = '<p style="text-align: center; color: #666;">No categories found</p>';
+        return;
+    }
+    
+    categoriesList.innerHTML = categories.map((category, index) => `
+        <div class="category-item">
+            <span class="category-name">${category}</span>
+            <div class="category-actions">
+                <button onclick="editCategory(${index}, '${category.replace(/'/g, "\\'")}')" class="edit-btn-small">Edit</button>
+                <button onclick="deleteCategory(${index}, '${category.replace(/'/g, "\\'")}')" class="delete-btn-small">Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Update category dropdowns in product forms
+function updateCategoryDropdowns(categories) {
+    const addCategorySelect = document.getElementById('productCategory');
+    const editCategorySelect = document.getElementById('editProductCategory');
+    
+    const optionsHTML = '<option value="">Select Category</option>' + 
+        categories.map(cat => `<option value="${cat.toLowerCase().replace(/\s+/g, '-')}">${cat}</option>`).join('');
+    
+    if (addCategorySelect) addCategorySelect.innerHTML = optionsHTML;
+    if (editCategorySelect) editCategorySelect.innerHTML = optionsHTML;
+}
+
+// Add new category
+async function addCategory() {
+    const input = document.getElementById('newCategoryInput');
+    const categoryName = input.value.trim();
+    
+    if (!categoryName) {
+        alert('Please enter a category name');
+        return;
+    }
+    
+    try {
+        // Get current categories
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_CATEGORIES));
+        const result = await response.json();
+        
+        if (!result.success) {
+            alert('Error loading categories');
+            return;
+        }
+        
+        const categories = result.categories;
+        
+        // Check if category already exists
+        if (categories.some(cat => cat.toLowerCase() === categoryName.toLowerCase())) {
+            alert('Category already exists!');
+            return;
+        }
+        
+        // Add new category
+        categories.push(categoryName);
+        
+        // Save to server
+        const saveResponse = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.SAVE_CATEGORIES), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ categories: categories })
+        });
+        
+        const saveResult = await saveResponse.json();
+        
+        if (saveResult.success) {
+            alert('Category added successfully!');
+            input.value = '';
+            loadCategories();
+        } else {
+            alert('Error saving category');
+        }
+    } catch (error) {
+        console.error('Error adding category:', error);
+        alert('Error adding category');
+    }
+}
+
+// Edit category
+async function editCategory(index, oldName) {
+    const newName = prompt('Enter new category name:', oldName);
+    
+    if (!newName || newName.trim() === '') {
+        return;
+    }
+    
+    if (newName.trim() === oldName) {
+        return;
+    }
+    
+    try {
+        // Get current categories
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_CATEGORIES));
+        const result = await response.json();
+        
+        if (!result.success) {
+            alert('Error loading categories');
+            return;
+        }
+        
+        const categories = result.categories;
+        
+        // Check if new name already exists
+        if (categories.some((cat, i) => i !== index && cat.toLowerCase() === newName.trim().toLowerCase())) {
+            alert('Category name already exists!');
+            return;
+        }
+        
+        // Update category
+        categories[index] = newName.trim();
+        
+        // Save to server
+        const saveResponse = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.SAVE_CATEGORIES), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ categories: categories })
+        });
+        
+        const saveResult = await saveResponse.json();
+        
+        if (saveResult.success) {
+            alert('Category updated successfully!');
+            loadCategories();
+        } else {
+            alert('Error updating category');
+        }
+    } catch (error) {
+        console.error('Error editing category:', error);
+        alert('Error editing category');
+    }
+}
+
+// Delete category
+async function deleteCategory(index, categoryName) {
+    if (!confirm(`Are you sure you want to delete "${categoryName}" category?`)) {
+        return;
+    }
+    
+    try {
+        // Get current categories
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_CATEGORIES));
+        const result = await response.json();
+        
+        if (!result.success) {
+            alert('Error loading categories');
+            return;
+        }
+        
+        const categories = result.categories;
+        
+        // Remove category
+        categories.splice(index, 1);
+        
+        // Save to server
+        const saveResponse = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.SAVE_CATEGORIES), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ categories: categories })
+        });
+        
+        const saveResult = await saveResponse.json();
+        
+        if (saveResult.success) {
+            alert('Category deleted successfully!');
+            loadCategories();
+        } else {
+            alert('Error deleting category');
+        }
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        alert('Error deleting category');
+    }
+}
+
 

@@ -456,6 +456,8 @@ body::before {
     padding: 30px;
     border-radius: 15px;
     max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
     position: relative;
     box-shadow: var(--shadow-lg);
     animation: slideUp 0.4s ease-out;
@@ -1353,6 +1355,91 @@ body::before {
     font-weight: bold;
     color: var(--primary-green);
     font-size: 16px;
+}
+
+/* ===== Category Management Styles ===== */
+.category-management {
+    background: var(--bg-cream);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.category-add-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.category-add-section input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid var(--primary-green);
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.categories-list {
+    display: grid;
+    gap: 12px;
+}
+
+.category-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.category-item:hover {
+    box-shadow: var(--shadow);
+    transform: translateX(5px);
+}
+
+.category-name {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 15px;
+}
+
+.category-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-btn-small {
+    padding: 8px 15px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.edit-btn-small:hover {
+    background: #1976D2;
+}
+
+.delete-btn-small {
+    padding: 8px 15px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.delete-btn-small:hover {
+    background: #cc0000;
 }
 
 /* ===== Responsive Design ===== */

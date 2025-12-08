@@ -89,6 +89,22 @@
             <!-- Registered Users Section -->
             <div class="admin-section">
                 <div class="admin-card full-width-card">
+                    <h2>Category Management</h2>
+                    <div class="category-management">
+                        <div class="category-add-section">
+                            <input type="text" id="newCategoryInput" placeholder="Enter new category name">
+                            <button onclick="addCategory()" class="submit-btn">Add Category</button>
+                        </div>
+                        <div class="categories-list" id="categoriesList">
+                            <!-- Categories will be listed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registered Users Section -->
+            <div class="admin-section">
+                <div class="admin-card full-width-card">
                     <h2>Registered Users</h2>
                     <div class="users-count">
                         Total Users: <span id="totalUsers">0</span>

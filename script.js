@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load products from server
     await loadProductsFromServer();
     
+    // Load categories for filter dropdown
+    await loadCategoriesForFilter();
+    
     // Update auth button state
     updateAuthButton();
     
@@ -1014,6 +1017,28 @@ async function loadUsersFromServer() {
         }
     } catch (error) {
         console.error('Error loading users from server:', error);
+    }
+}
+
+// ===== Load Categories for Filter Dropdown =====
+async function loadCategoriesForFilter() {
+    try {
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.GET_CATEGORIES));
+        const result = await response.json();
+        
+        if (result.success && result.categories) {
+            const categoryFilter = document.getElementById('categoryFilter');
+            if (categoryFilter) {
+                // Keep "All Categories" option and add server categories
+                const optionsHTML = '<option value="">All Categories</option>' + 
+                    result.categories.map(cat => 
+                        `<option value="${cat.toLowerCase().replace(/\s+/g, '-')}">${cat}</option>`
+                    ).join('');
+                categoryFilter.innerHTML = optionsHTML;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
     }
 }
 

@@ -185,6 +185,53 @@ app.get('/get-products', (req, res) => {
     }
 });
 
+// ===== Category Endpoints =====
+
+// Save categories to text file
+app.post('/save-categories', (req, res) => {
+    try {
+        const { categories } = req.body;
+        const categoryFile = path.join(__dirname, 'data', 'category.txt');
+        
+        // Ensure data directory exists
+        const dataDir = path.join(__dirname, 'data');
+        if (!fs.existsSync(dataDir)) {
+            fs.mkdirSync(dataDir);
+        }
+        
+        // Save categories as newline-separated text
+        fs.writeFileSync(categoryFile, categories.join('\n'));
+        res.json({ success: true, message: 'Categories saved successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get categories from text file
+app.get('/get-categories', (req, res) => {
+    try {
+        const categoryFile = path.join(__dirname, 'data', 'category.txt');
+        
+        if (fs.existsSync(categoryFile)) {
+            const data = fs.readFileSync(categoryFile, 'utf8');
+            const categories = data.split('\n').filter(cat => cat.trim() !== '');
+            res.json({ success: true, categories: categories });
+        } else {
+            // Return default categories if file doesn't exist
+            const defaultCategories = [
+                'Herbal Oils',
+                'Ayurvedic Powders',
+                'Herbal Tablets',
+                'Ayurvedic Creams',
+                'Herbal Teas'
+            ];
+            res.json({ success: true, categories: defaultCategories });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
