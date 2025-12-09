@@ -1,3 +1,142 @@
+// ===== Custom Notification System =====
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('customNotification');
+    const icon = document.getElementById('notificationIcon');
+    const messageEl = document.getElementById('notificationMessage');
+    const content = notification.querySelector('.notification-content');
+    
+    // Set icon based on type
+    const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    icon.textContent = icons[type] || icons.success;
+    messageEl.textContent = message;
+    
+    // Remove all type classes
+    content.classList.remove('success', 'error', 'warning', 'info');
+    // Add current type class
+    content.classList.add(type);
+    
+    // Show notification
+    notification.classList.add('show');
+    
+    // Auto hide after 4 seconds
+    setTimeout(() => {
+        closeNotification();
+    }, 4000);
+}
+
+function closeNotification() {
+    const notification = document.getElementById('customNotification');
+    notification.classList.remove('show');
+}
+
+// ===== Custom Confirm Dialog =====
+function showConfirm(message, title = 'localhost:3000 says') {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('customConfirm');
+        const titleEl = document.getElementById('confirmTitle');
+        const messageEl = document.getElementById('confirmMessage');
+        const okBtn = document.getElementById('confirmOkBtn');
+        const cancelBtn = document.getElementById('confirmCancelBtn');
+        
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        overlay.classList.add('show');
+        
+        function handleOk() {
+            overlay.classList.remove('show');
+            cleanup();
+            resolve(true);
+        }
+        
+        function handleCancel() {
+            overlay.classList.remove('show');
+            cleanup();
+            resolve(false);
+        }
+        
+        function cleanup() {
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+        }
+        
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+        
+        // Close on escape key
+        function handleEscape(e) {
+            if (e.key === 'Escape') {
+                handleCancel();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        }
+        document.addEventListener('keydown', handleEscape);
+    });
+}
+
+// ===== Custom Prompt Dialog =====
+function showPrompt(message, defaultValue = '', title = 'localhost:3000 says') {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('customPrompt');
+        const titleEl = document.getElementById('promptTitle');
+        const messageEl = document.getElementById('promptMessage');
+        const input = document.getElementById('promptInput');
+        const okBtn = document.getElementById('promptOkBtn');
+        const cancelBtn = document.getElementById('promptCancelBtn');
+        
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        input.value = defaultValue;
+        overlay.classList.add('show');
+        
+        // Focus on input
+        setTimeout(() => input.focus(), 100);
+        
+        function handleOk() {
+            const value = input.value;
+            overlay.classList.remove('show');
+            cleanup();
+            resolve(value);
+        }
+        
+        function handleCancel() {
+            overlay.classList.remove('show');
+            cleanup();
+            resolve(null);
+        }
+        
+        function cleanup() {
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+            input.removeEventListener('keypress', handleEnter);
+        }
+        
+        function handleEnter(e) {
+            if (e.key === 'Enter') {
+                handleOk();
+            }
+        }
+        
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+        input.addEventListener('keypress', handleEnter);
+        
+        // Close on escape key
+        function handleEscape(e) {
+            if (e.key === 'Escape') {
+                handleCancel();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        }
+        document.addEventListener('keydown', handleEscape);
+    });
+}
+
 // ===== Check Admin Authentication =====
 document.addEventListener('DOMContentLoaded', async function() {
     const isLoggedIn = localStorage.getItem('adminLoggedIn');
@@ -100,10 +239,10 @@ async function handleImageUpload(input) {
                     }
                 }, 200);
             } else {
-                alert('Upload failed: ' + result.error);
+                showNotification('Upload failed: ' + result.error, 'error');
             }
         } catch (error) {
-            alert('Upload error: ' + error.message + '\nMake sure the server is running with: npm start');
+            showNotification('Upload error: ' + error.message + '. Make sure the server is running with: npm start', 'error');
         }
     }
 }
@@ -156,10 +295,10 @@ async function handleEditImageUpload(input) {
                     }
                 }, 200);
             } else {
-                alert('Upload failed: ' + result.error);
+                showNotification('Upload failed: ' + result.error, 'error');
             }
         } catch (error) {
-            alert('Upload error: ' + error.message + '\nMake sure the server is running with: npm start');
+            showNotification('Upload error: ' + error.message + '. Make sure the server is running with: npm start', 'error');
         }
     }
 }
@@ -294,17 +433,17 @@ function handleAddProduct(e) {
     
     // Validation
     if (!name || !category || !price || isNaN(price) || !discount || isNaN(discount) || !image) {
-        alert('Please fill in all required fields including an image!');
+        showNotification('Please fill in all required fields including an image!', 'warning');
         return;
     }
     
     if (price < 0) {
-        alert('Price cannot be negative!');
+        showNotification('Price cannot be negative!', 'error');
         return;
     }
     
     if (discount < 0 || discount > 100) {
-        alert('Discount must be between 0 and 100!');
+        showNotification('Discount must be between 0 and 100!', 'error');
         return;
     }
     
@@ -330,7 +469,7 @@ function handleAddProduct(e) {
     document.getElementById('productImagePath').value = '';
     
     // Show success message
-    alert('Product added successfully!');
+    showNotification('Product added successfully!', 'success');
 }
 
 // ===== Edit Product =====
@@ -338,7 +477,7 @@ function editProduct(productId) {
     const product = products.find(p => p.id === productId);
     
     if (!product) {
-        alert('Product not found!');
+        showNotification('Product not found!', 'error');
         return;
     }
     
@@ -373,17 +512,17 @@ function handleEditProduct(e) {
     
     // Validation
     if (!name || !category || !price || isNaN(price) || !discount || isNaN(discount) || !image) {
-        alert('Please fill in all required fields including an image!');
+        showNotification('Please fill in all required fields including an image!', 'warning');
         return;
     }
     
     if (price < 0) {
-        alert('Price cannot be negative!');
+        showNotification('Price cannot be negative!', 'error');
         return;
     }
     
     if (discount < 0 || discount > 100) {
-        alert('Discount must be between 0 and 100!');
+        showNotification('Discount must be between 0 and 100!', 'error');
         return;
     }
     
@@ -391,7 +530,7 @@ function handleEditProduct(e) {
     const productIndex = products.findIndex(p => p.id === productId);
     
     if (productIndex === -1) {
-        alert('Product not found!');
+        showNotification('Product not found!', 'error');
         return;
     }
     
@@ -412,12 +551,12 @@ function handleEditProduct(e) {
     closeEditModal();
     
     // Show success message
-    alert('Product updated successfully!');
+    showNotification('Product updated successfully!', 'success');
 }
 
 // ===== Delete Product =====
-function deleteProduct(productId) {
-    if (!confirm('Are you sure you want to delete this product?')) {
+async function deleteProduct(productId) {
+    if (!await showConfirm('Are you sure you want to delete this product?')) {
         return;
     }
     
@@ -425,7 +564,7 @@ function deleteProduct(productId) {
     saveProducts();
     displayAdminProducts();
     
-    alert('Product deleted successfully!');
+    showNotification('Product deleted successfully!', 'success');
 }
 
 // ===== Close Edit Modal =====
@@ -545,7 +684,7 @@ function filterOrders(filter) {
 
 // ===== Mark Order as Completed =====
 async function markOrderAsCompleted(orderId) {
-    if (!confirm('Mark this order as completed and delivered?')) {
+    if (!await showConfirm('Mark this order as completed and delivered?')) {
         return;
     }
     
@@ -568,7 +707,7 @@ async function markOrderAsCompleted(orderId) {
         }
         
         displayAdminOrders(currentOrderFilter);
-        alert('Order marked as completed!');
+        showNotification('Order marked as completed!', 'success');
     }
 }
 
@@ -687,7 +826,7 @@ async function addCategory() {
     const categoryName = input.value.trim();
     
     if (!categoryName) {
-        alert('Please enter a category name');
+        showNotification('Please enter a category name', 'warning');
         return;
     }
     
@@ -697,7 +836,7 @@ async function addCategory() {
         const result = await response.json();
         
         if (!result.success) {
-            alert('Error loading categories');
+            showNotification('Error loading categories', 'error');
             return;
         }
         
@@ -705,7 +844,7 @@ async function addCategory() {
         
         // Check if category already exists
         if (categories.some(cat => cat.toLowerCase() === categoryName.toLowerCase())) {
-            alert('Category already exists!');
+            showNotification('Category already exists!', 'warning');
             return;
         }
         
@@ -724,21 +863,21 @@ async function addCategory() {
         const saveResult = await saveResponse.json();
         
         if (saveResult.success) {
-            alert('Category added successfully!');
+            showNotification('Category added successfully!', 'success');
             input.value = '';
             loadCategories();
         } else {
-            alert('Error saving category');
+            showNotification('Error saving category', 'error');
         }
     } catch (error) {
         console.error('Error adding category:', error);
-        alert('Error adding category');
+        showNotification('Error adding category', 'error');
     }
 }
 
 // Edit category
 async function editCategory(index, oldName) {
-    const newName = prompt('Enter new category name:', oldName);
+    const newName = await showPrompt('Enter new category name:', oldName);
     
     if (!newName || newName.trim() === '') {
         return;
@@ -754,7 +893,7 @@ async function editCategory(index, oldName) {
         const result = await response.json();
         
         if (!result.success) {
-            alert('Error loading categories');
+            showNotification('Error loading categories', 'error');
             return;
         }
         
@@ -762,7 +901,7 @@ async function editCategory(index, oldName) {
         
         // Check if new name already exists
         if (categories.some((cat, i) => i !== index && cat.toLowerCase() === newName.trim().toLowerCase())) {
-            alert('Category name already exists!');
+            showNotification('Category name already exists!', 'warning');
             return;
         }
         
@@ -781,20 +920,20 @@ async function editCategory(index, oldName) {
         const saveResult = await saveResponse.json();
         
         if (saveResult.success) {
-            alert('Category updated successfully!');
+            showNotification('Category updated successfully!', 'success');
             loadCategories();
         } else {
-            alert('Error updating category');
+            showNotification('Error updating category', 'error');
         }
     } catch (error) {
         console.error('Error editing category:', error);
-        alert('Error editing category');
+        showNotification('Error editing category', 'error');
     }
 }
 
 // Delete category
 async function deleteCategory(index, categoryName) {
-    if (!confirm(`Are you sure you want to delete "${categoryName}" category?`)) {
+    if (!await showConfirm(`Are you sure you want to delete "${categoryName}" category?`)) {
         return;
     }
     
@@ -804,7 +943,7 @@ async function deleteCategory(index, categoryName) {
         const result = await response.json();
         
         if (!result.success) {
-            alert('Error loading categories');
+            showNotification('Error loading categories', 'error');
             return;
         }
         
@@ -825,14 +964,14 @@ async function deleteCategory(index, categoryName) {
         const saveResult = await saveResponse.json();
         
         if (saveResult.success) {
-            alert('Category deleted successfully!');
+            showNotification('Category deleted successfully!', 'success');
             loadCategories();
         } else {
-            alert('Error deleting category');
+            showNotification('Error deleting category', 'error');
         }
     } catch (error) {
         console.error('Error deleting category:', error);
-        alert('Error deleting category');
+        showNotification('Error deleting category', 'error');
     }
 }
 

@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -229,6 +230,101 @@ app.get('/get-categories', (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Email configuration
+// NOTE: You must generate a Gmail App Password to use this feature
+// Follow these steps:
+// 1. Go to https://myaccount.google.com/apppasswords
+// 2. Sign in with devraj1502@gmail.com
+// 3. Select "Mail" and "Other (Custom name)"
+// 4. Name it "AyurVeda Website" and click Generate
+// 5. Copy the 16-character password (remove spaces)
+// 6. Replace the password below with your App Password
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'devraj1502@gmail.com',
+        pass: 'tzmk eqdv vldf dmze' // Replace with your Gmail App Password (16 characters)
+    }
+});
+
+// Send order confirmation email
+app.post('/send-email', async (req, res) => {
+    try {
+        const { toEmail, customerName, orderId, productName, price, deliveryDate } = req.body;
+        
+        const mailOptions = {
+            from: 'devraj1502@gmail.com',
+            to: toEmail,
+            subject: `Order Confirmation - ${orderId} - AyurVeda`,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                    <div style="background: linear-gradient(135deg, #228B22 0%, #32CD32 100%); color: white; padding: 20px; border-radius: 10px 10px 0 0; text-align: center;">
+                        <h1 style="margin: 0;">🌿 AyurVeda</h1>
+                        <p style="margin: 5px 0 0 0;">Natural Healing for Better Living</p>
+                    </div>
+                    
+                    <div style="padding: 30px; background: #f9f9f9;">
+                        <h2 style="color: #228B22; margin-top: 0;">Order Confirmation</h2>
+                        
+                        <p style="font-size: 16px;">Dear <strong>${customerName}</strong>,</p>
+                        
+                        <p style="font-size: 16px;">Thank you for your order! Your order has been confirmed and is being processed.</p>
+                        
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #228B22;">
+                            <h3 style="color: #228B22; margin-top: 0;">Order Details</h3>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 8px 0; color: #666;">Order ID:</td>
+                                    <td style="padding: 8px 0; font-weight: bold;">${orderId}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #666;">Product:</td>
+                                    <td style="padding: 8px 0; font-weight: bold;">${productName}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #666;">Amount Paid:</td>
+                                    <td style="padding: 8px 0; font-weight: bold; color: #228B22;">₹${price}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #666;">Expected Delivery:</td>
+                                    <td style="padding: 8px 0; font-weight: bold;">${deliveryDate}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #666;">Status:</td>
+                                    <td style="padding: 8px 0;"><span style="background: #FFA500; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px;">In Progress</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <p style="font-size: 16px;">We will contact you soon regarding your order delivery.</p>
+                        
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <p style="margin: 0; color: #228B22; font-weight: bold;">📞 Need Help?</p>
+                            <p style="margin: 5px 0 0 0; color: #666;">Contact us for any queries regarding your order.</p>
+                        </div>
+                        
+                        <p style="font-size: 14px; color: #666; margin-top: 30px;">
+                            Thank you for choosing AyurVeda for your natural wellness needs!
+                        </p>
+                    </div>
+                    
+                    <div style="background: #228B22; color: white; padding: 15px; text-align: center; border-radius: 0 0 10px 10px;">
+                        <p style="margin: 0; font-size: 14px;">&copy; 2025 AyurVeda. All Rights Reserved.</p>
+                        <p style="margin: 5px 0 0 0; font-size: 12px;">Natural Healing for Better Living</p>
+                    </div>
+                </div>
+            `
+        };
+        
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: 'Email sent successfully' });
+    } catch (error) {
+        console.error('Error sending email:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 

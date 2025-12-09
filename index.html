@@ -284,6 +284,10 @@
                     <input type="tel" id="signupMobile" required placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}" maxlength="10">
                 </div>
                 <div class="form-group">
+                    <label for="signupEmail">📧 Email Address *</label>
+                    <input type="email" id="signupEmail" required placeholder="Enter your email address">
+                </div>
+                <div class="form-group">
                     <label for="signupAddress">📍 Complete Address *</label>
                     <textarea id="signupAddress" required placeholder="House/Flat No., Area, Landmark, City, State, PIN" rows="4"></textarea>
                 </div>
@@ -311,6 +315,10 @@
                     <small style="color: #666;">Mobile number cannot be changed</small>
                 </div>
                 <div class="form-group">
+                    <label for="profileEmail">Email Address *</label>
+                    <input type="email" id="profileEmail" required placeholder="Enter your email address">
+                </div>
+                <div class="form-group">
                     <label for="profileAddress">Address *</label>
                     <textarea id="profileAddress" required placeholder="Enter your complete address" rows="4"></textarea>
                 </div>
@@ -328,6 +336,42 @@
                 <!-- Order details will be shown here -->
             </div>
             <button class="submit-btn" onclick="window.location.href='myorder.html'">View My Orders</button>
+        </div>
+    </div>
+
+    <!-- Custom Notification Popup -->
+    <div id="customNotification" class="custom-notification">
+        <div class="notification-content">
+            <div class="notification-icon" id="notificationIcon"></div>
+            <div class="notification-message" id="notificationMessage"></div>
+            <button class="notification-close" onclick="closeNotification()">&times;</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Dialog -->
+    <div id="customConfirm" class="custom-confirm-overlay">
+        <div class="custom-confirm-dialog">
+            <div class="confirm-icon">⚠</div>
+            <div class="confirm-title" id="confirmTitle">localhost:3000 says</div>
+            <div class="confirm-message" id="confirmMessage"></div>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-ok" id="confirmOkBtn">OK</button>
+                <button class="confirm-btn confirm-cancel" id="confirmCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Prompt Dialog -->
+    <div id="customPrompt" class="custom-confirm-overlay">
+        <div class="custom-confirm-dialog">
+            <div class="confirm-icon">✏️</div>
+            <div class="confirm-title" id="promptTitle">localhost:3000 says</div>
+            <div class="confirm-message" id="promptMessage"></div>
+            <input type="text" id="promptInput" class="prompt-input" placeholder="Enter your response...">
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-ok" id="promptOkBtn">OK</button>
+                <button class="confirm-btn confirm-cancel" id="promptCancelBtn">Cancel</button>
+            </div>
         </div>
     </div>
 

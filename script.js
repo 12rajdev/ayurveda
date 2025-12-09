@@ -1,3 +1,142 @@
+// ===== Custom Notification System =====
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('customNotification');
+    const icon = document.getElementById('notificationIcon');
+    const messageEl = document.getElementById('notificationMessage');
+    const content = notification.querySelector('.notification-content');
+    
+    // Set icon based on type
+    const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    icon.textContent = icons[type] || icons.success;
+    messageEl.textContent = message;
+    
+    // Remove all type classes
+    content.classList.remove('success', 'error', 'warning', 'info');
+    // Add current type class
+    content.classList.add(type);
+    
+    // Show notification
+    notification.classList.add('show');
+    
+    // Auto hide after 4 seconds
+    setTimeout(() => {
+        closeNotification();
+    }, 4000);
+}
+
+function closeNotification() {
+    const notification = document.getElementById('customNotification');
+    notification.classList.remove('show');
+}
+
+// ===== Custom Confirm Dialog =====
+function showConfirm(message, title = 'localhost:3000 says') {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('customConfirm');
+        const titleEl = document.getElementById('confirmTitle');
+        const messageEl = document.getElementById('confirmMessage');
+        const okBtn = document.getElementById('confirmOkBtn');
+        const cancelBtn = document.getElementById('confirmCancelBtn');
+        
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        overlay.classList.add('show');
+        
+        function handleOk() {
+            overlay.classList.remove('show');
+            cleanup();
+            resolve(true);
+        }
+        
+        function handleCancel() {
+            overlay.classList.remove('show');
+            cleanup();
+            resolve(false);
+        }
+        
+        function cleanup() {
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+        }
+        
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+        
+        // Close on escape key
+        function handleEscape(e) {
+            if (e.key === 'Escape') {
+                handleCancel();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        }
+        document.addEventListener('keydown', handleEscape);
+    });
+}
+
+// ===== Custom Prompt Dialog =====
+function showPrompt(message, defaultValue = '', title = 'localhost:3000 says') {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('customPrompt');
+        const titleEl = document.getElementById('promptTitle');
+        const messageEl = document.getElementById('promptMessage');
+        const input = document.getElementById('promptInput');
+        const okBtn = document.getElementById('promptOkBtn');
+        const cancelBtn = document.getElementById('promptCancelBtn');
+        
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        input.value = defaultValue;
+        overlay.classList.add('show');
+        
+        // Focus on input
+        setTimeout(() => input.focus(), 100);
+        
+        function handleOk() {
+            const value = input.value;
+            overlay.classList.remove('show');
+            cleanup();
+            resolve(value);
+        }
+        
+        function handleCancel() {
+            overlay.classList.remove('show');
+            cleanup();
+            resolve(null);
+        }
+        
+        function cleanup() {
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+            input.removeEventListener('keypress', handleEnter);
+        }
+        
+        function handleEnter(e) {
+            if (e.key === 'Enter') {
+                handleOk();
+            }
+        }
+        
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+        input.addEventListener('keypress', handleEnter);
+        
+        // Close on escape key
+        function handleEscape(e) {
+            if (e.key === 'Escape') {
+                handleCancel();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        }
+        document.addEventListener('keydown', handleEscape);
+    });
+}
+
 // ===== Product Data & State Management =====
 let products = [];
 let filteredProducts = [];
@@ -22,8 +161,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (window.location.pathname.includes('myorder.html')) {
         const loggedInUser = JSON.parse(localStorage.getItem('customerInfo') || 'null');
         if (!loggedInUser) {
-            alert('Please login to view your orders!');
-            window.location.href = 'index.html';
+            showNotification('Please login to view your orders!', 'warning');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
             return;
         }
     }
@@ -340,7 +481,7 @@ function openOrderModal(productId) {
     const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || 'null');
     
     if (!customerInfo) {
-        alert('Please login or sign up to place an order!');
+        showNotification('Please login or sign up to place an order!', 'info');
         openAuthModal();
         return;
     }
@@ -351,7 +492,7 @@ function openOrderModal(productId) {
     // Find the product
     const product = products.find(p => p.id === productId);
     if (!product) {
-        alert('Product not found!');
+        showNotification('Product not found!', 'error');
         return;
     }
     
@@ -402,12 +543,12 @@ function handleOrderSubmit(e) {
     localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
     
     // Update user info (don't create duplicate, just update existing)
-    updateRegisteredUser(customerName, customerMobile, customerAddress);
+    updateRegisteredUser(customerName, customerMobile, customerAddress, customerInfo.email || '');
     
     const product = products.find(p => p.id === productId);
     
     if (!product) {
-        alert('Product not found!');
+        showNotification('Product not found!', 'error');
         return;
     }
     
@@ -430,6 +571,7 @@ function handleOrderSubmit(e) {
         customerName: customerName,
         customerMobile: customerMobile,
         customerAddress: customerAddress,
+        customerEmail: customerInfo.email || '',
         orderDate: orderDate.toISOString(),
         deliveryDate: deliveryDate.toISOString(),
         status: 'in-progress',
@@ -443,6 +585,11 @@ function handleOrderSubmit(e) {
     
     // Save to server
     saveOrdersToServer(orders);
+    
+    // Send confirmation email
+    if (customerInfo.email) {
+        sendOrderConfirmationEmail(order);
+    }
     
     // Close order modal
     document.getElementById('orderModal').style.display = 'none';
@@ -621,7 +768,7 @@ function bookOnWhatsApp(productId) {
     const product = products.find(p => p.id === productId);
     
     if (!product) {
-        alert('Product not found!');
+        showNotification('Product not found!', 'error');
         return;
     }
     
@@ -650,15 +797,15 @@ function editCustomerInfo() {
 }
 
 // ===== Cancel Order =====
-function cancelOrder(orderId) {
-    const reason = prompt('Please provide a reason for cancellation (optional):');
+async function cancelOrder(orderId) {
+    const reason = await showPrompt('Please provide a reason for cancellation (optional):');
     
     if (reason === null) {
-        // User clicked Cancel in prompt
+        // User clicked Cancel
         return;
     }
     
-    const confirmCancel = confirm('Are you sure you want to cancel this order?');
+    const confirmCancel = await showConfirm('Are you sure you want to cancel this order?');
     
     if (!confirmCancel) {
         return;
@@ -671,7 +818,7 @@ function cancelOrder(orderId) {
     const orderIndex = orders.findIndex(o => o.id === orderId);
     
     if (orderIndex === -1) {
-        alert('Order not found!');
+        showNotification('Order not found!', 'error');
         return;
     }
     
@@ -691,7 +838,7 @@ function cancelOrder(orderId) {
     // Refresh display
     displayOrders(customerOrderFilter);
     
-    alert('Order cancelled successfully!');
+    showNotification('Order cancelled successfully!', 'success');
 }
 
 // ===== Quick Book Order (for registered customers) =====
@@ -700,7 +847,7 @@ function quickBookOrder() {
     const productId = parseInt(document.getElementById('selectedProductId').value);
     
     if (!customerInfo) {
-        alert('Customer information not found!');
+        showNotification('Customer information not found!', 'error');
         return;
     }
     
@@ -710,7 +857,7 @@ function quickBookOrder() {
     const product = products.find(p => p.id === productId);
     
     if (!product) {
-        alert('Product not found!');
+        showNotification('Product not found!', 'error');
         return;
     }
     
@@ -732,6 +879,7 @@ function quickBookOrder() {
         discount: product.discount,
         customerName: customerInfo.name,
         customerMobile: customerInfo.mobile,
+        customerEmail: customerInfo.email || '',
         customerAddress: customerInfo.address,
         orderDate: orderDate.toISOString(),
         deliveryDate: deliveryDate.toISOString(),
@@ -746,6 +894,11 @@ function quickBookOrder() {
     
     // Save to server
     saveOrdersToServer(orders);
+    
+    // Send confirmation email
+    if (customerInfo.email) {
+        sendOrderConfirmationEmail(order);
+    }
     
     // Close order modal
     document.getElementById('orderModal').style.display = 'none';
@@ -858,7 +1011,7 @@ function downloadReceipt(orderId) {
     const order = orders.find(o => o.id === orderId);
     
     if (!order) {
-        alert('Order not found!');
+        showNotification('Order not found!', 'error');
         return;
     }
     
@@ -974,7 +1127,7 @@ function downloadReceipt(orderId) {
 }
 
 // ===== Update Registered User (Create or Update) =====
-async function updateRegisteredUser(name, mobile, address) {
+async function updateRegisteredUser(name, mobile, address, email) {
     let users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
     
     // Check if user already exists (by mobile number)
@@ -984,6 +1137,7 @@ async function updateRegisteredUser(name, mobile, address) {
         // Update existing user info
         users[existingUserIndex].name = name;
         users[existingUserIndex].address = address;
+        users[existingUserIndex].email = email;
         // Keep the same userId and registeredOn date
     } else {
         // Generate unique user ID for new user
@@ -993,6 +1147,7 @@ async function updateRegisteredUser(name, mobile, address) {
             userId: userId,
             name: name,
             mobile: mobile,
+            email: email,
             address: address,
             registeredOn: new Date().toISOString()
         };
@@ -1067,6 +1222,36 @@ async function saveOrdersToServer(orders) {
     }
 }
 
+// ===== Send Order Confirmation Email =====
+async function sendOrderConfirmationEmail(order) {
+    try {
+        const deliveryDate = new Date(order.deliveryDate).toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        
+        const emailData = {
+            toEmail: order.customerEmail,
+            customerName: order.customerName,
+            orderId: order.id,
+            productName: order.productName,
+            price: order.price,
+            deliveryDate: deliveryDate
+        };
+        
+        await fetch(getApiUrl(API_CONFIG.ENDPOINTS.SEND_EMAIL), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(emailData)
+        });
+        
+        console.log('Confirmation email sent successfully');
+    } catch (error) {
+        console.error('Error sending confirmation email:', error);
+    }
+}
+
 // ===== Load Orders from Server =====
 async function loadOrdersFromServer() {
     try {
@@ -1094,11 +1279,13 @@ function openProfileModal() {
         // Pre-fill form with existing data
         document.getElementById('profileName').value = customerInfo.name;
         document.getElementById('profileMobile').value = customerInfo.mobile;
+        document.getElementById('profileEmail').value = customerInfo.email || '';
         document.getElementById('profileAddress').value = customerInfo.address;
     } else {
         // Clear form for new user
         document.getElementById('profileName').value = '';
         document.getElementById('profileMobile').value = '';
+        document.getElementById('profileEmail').value = '';
         document.getElementById('profileAddress').value = '';
         document.getElementById('profileMobile').readOnly = false;
         document.getElementById('profileMobile').style.background = '';
@@ -1119,27 +1306,31 @@ async function updateProfile(e) {
     
     const name = document.getElementById('profileName').value.trim();
     const mobile = document.getElementById('profileMobile').value.trim();
+    const email = document.getElementById('profileEmail').value.trim();
     const address = document.getElementById('profileAddress').value.trim();
     
     // Save customer info
     const customerInfo = {
         name: name,
         mobile: mobile,
+        email: email,
         address: address
     };
     localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
     
     // Update registered user
-    await updateRegisteredUser(name, mobile, address);
+    await updateRegisteredUser(name, mobile, address, email);
     
     // Close modal
     closeProfileModal();
     
     // Show success message
-    alert('Profile updated successfully!');
+    showNotification('Profile updated successfully!', 'success');
     
     // Reload page to update header profile link
-    location.reload();
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
 }
 
 // ===== Close Modal on Outside Click =====
@@ -1187,8 +1378,8 @@ function toggleUserAuth() {
 }
 
 // Show User Menu
-function showUserMenu() {
-    const choice = confirm('Choose an action:\nOK = View Profile\nCancel = Logout');
+async function showUserMenu() {
+    const choice = await showConfirm('Choose an action:\nOK = View Profile\nCancel = Logout');
     
     if (choice) {
         // View Profile
@@ -1200,17 +1391,19 @@ function showUserMenu() {
 }
 
 // Handle Logout
-function handleLogout() {
-    const confirmLogout = confirm('Are you sure you want to logout?');
+async function handleLogout() {
+    const confirmLogout = await showConfirm('Are you sure you want to logout?');
     
     if (confirmLogout) {
         localStorage.removeItem('customerInfo');
         updateAuthButton();
-        alert('You have been logged out successfully!');
+        showNotification('You have been logged out successfully!', 'success');
         
         // Redirect to home if on My Orders page
         if (window.location.pathname.includes('myorder.html')) {
-            window.location.href = 'index.html';
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
         }
     }
 }
@@ -1267,7 +1460,7 @@ async function handleLogin(e) {
     const user = users.find(u => u.mobile === mobile);
     
     if (!user) {
-        const signup = confirm('Mobile number not found!\n\nWould you like to sign up?');
+        const signup = await showConfirm('Mobile number not found!\n\nWould you like to sign up?');
         if (signup) {
             showSignupForm();
             document.getElementById('signupMobile').value = mobile;
@@ -1279,6 +1472,7 @@ async function handleLogin(e) {
     const customerInfo = {
         name: user.name,
         mobile: user.mobile,
+        email: user.email || '',
         address: user.address
     };
     
@@ -1287,7 +1481,7 @@ async function handleLogin(e) {
     closeAuthModal();
     updateAuthButton();
     
-    alert('Welcome back, ' + user.name + '!');
+    showNotification('Welcome back, ' + user.name + '!', 'success');
 }
 
 // Handle Signup
@@ -1296,6 +1490,7 @@ function handleSignup(e) {
     
     const name = document.getElementById('signupName').value.trim();
     const mobile = document.getElementById('signupMobile').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
     const address = document.getElementById('signupAddress').value.trim();
     
     // Check if mobile already exists
@@ -1303,7 +1498,7 @@ function handleSignup(e) {
     const existingUser = users.find(u => u.mobile === mobile);
     
     if (existingUser) {
-        alert('This mobile number is already registered. Please login instead.');
+        showNotification('This mobile number is already registered. Please login instead.', 'warning');
         showLoginForm();
         document.getElementById('loginMobile').value = mobile;
         return;
@@ -1313,17 +1508,19 @@ function handleSignup(e) {
     const customerInfo = {
         name: name,
         mobile: mobile,
+        email: email,
         address: address
     };
     
     localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
     
     // Register user
-    updateRegisteredUser(name, mobile, address);
+    updateRegisteredUser(name, mobile, address, email);
     
     closeAuthModal();
     updateAuthButton();
     
-    alert('Account created successfully! Welcome, ' + name + '!');
+    showNotification('Account created successfully! Welcome, ' + name + '!', 'success');
 }
+
 

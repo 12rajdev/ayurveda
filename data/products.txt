@@ -11,10 +11,10 @@
   {
     "id": 2,
     "name": "Dantmanjan - Triphala Dental Powder",
-    "category": "powders",
+    "category": "herbal-oils-",
     "price": 450,
     "discount": 15,
-    "image": "https://images.unsplash.com/photo-1505944357793-972eba8e48f8?w=400&h=400&fit=crop",
+    "image": "images/1765253250650-947191009.jpg",
     "description": "Traditional Ayurvedic dental powder with Triphala for strong teeth and healthy gums. Ancient herbal blend for complete oral care and fresh breath"
   },
   {

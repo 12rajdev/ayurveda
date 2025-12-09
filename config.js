@@ -21,7 +21,8 @@ const API_CONFIG = {
         GET_PRODUCTS: '/get-products',
         SAVE_PRODUCTS: '/save-products',
         GET_CATEGORIES: '/get-categories',
-        SAVE_CATEGORIES: '/save-categories'
+        SAVE_CATEGORIES: '/save-categories',
+        SEND_EMAIL: '/send-email'
     }
 };
 

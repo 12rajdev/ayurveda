@@ -41,6 +41,269 @@ img {
     overflow-x: hidden;
 }
 
+/* ===== Custom Notification Popup ===== */
+.custom-notification {
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.custom-notification.show {
+    top: 20px;
+}
+
+.notification-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    padding: 20px 25px;
+    min-width: 320px;
+    max-width: 500px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-left: 5px solid var(--primary-green);
+    animation: slideInShake 0.6s ease-out;
+}
+
+@keyframes slideInShake {
+    0% {
+        transform: translateY(-100px) scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: translateY(10px) scale(1.05);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.notification-icon {
+    font-size: 32px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.notification-message {
+    flex: 1;
+    color: var(--text-dark);
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.notification-close {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.notification-close:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+/* Notification Types */
+.notification-content.success {
+    border-left-color: #4CAF50;
+}
+
+.notification-content.error {
+    border-left-color: #ff4444;
+}
+
+.notification-content.warning {
+    border-left-color: #FFA500;
+}
+
+.notification-content.info {
+    border-left-color: #2196F3;
+}
+
+/* ===== Custom Confirm Dialog ===== */
+.custom-confirm-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10001;
+    animation: fadeIn 0.2s ease-in;
+}
+
+.custom-confirm-overlay.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-confirm-dialog {
+    background: #2b2b2b;
+    border-radius: 10px;
+    padding: 30px;
+    min-width: 350px;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: slideInBounce 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    text-align: center;
+    color: #fff;
+}
+
+.confirm-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #FFA500;
+}
+
+.confirm-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.confirm-message {
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    color: #ddd;
+    white-space: pre-line;
+}
+
+.confirm-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.confirm-btn {
+    padding: 12px 35px;
+    border: none;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.confirm-ok {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+}
+
+.confirm-ok:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.confirm-cancel {
+    background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+    color: #fff;
+}
+
+.confirm-cancel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 102, 204, 0.4);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInBounce {
+    0% {
+        transform: scale(0.7) translateY(-30px);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Mobile Responsive for Confirm Dialog */
+@media (max-width: 480px) {
+    .custom-confirm-dialog {
+        min-width: 280px;
+        max-width: 90%;
+        padding: 25px 20px;
+    }
+    
+    .confirm-icon {
+        font-size: 40px;
+    }
+    
+    .confirm-title {
+        font-size: 16px;
+    }
+    
+    .confirm-message {
+        font-size: 14px;
+    }
+    
+    .confirm-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .confirm-btn {
+        width: 100%;
+        padding: 12px 20px;
+    }
+
+    .prompt-input {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+/* ===== Custom Prompt Input ===== */
+.prompt-input {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 15px 0 20px 0;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    background: #fff;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.prompt-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.prompt-input::placeholder {
+    color: #999;
+}
+
 /* Ayurvedic Leaf Pattern Background */
 body::before {
     content: '';
@@ -624,6 +887,39 @@ body::before {
     margin-bottom: 8px;
     font-weight: 600;
     color: var(--text-dark);
+}
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 45px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.toggle-password:hover {
+    color: var(--primary-green);
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
 }
 
 .form-group input,
@@ -1964,6 +2260,22 @@ body::before {
     
     .logout-btn {
         padding: 8px 20px;
+        font-size: 14px;
+    }
+    
+    /* Notification Mobile */
+    .notification-content {
+        min-width: 280px;
+        max-width: calc(100vw - 30px);
+        padding: 15px 20px;
+    }
+    
+    .notification-icon {
+        font-size: 24px;
+        min-width: 30px;
+    }
+    
+    .notification-message {
         font-size: 14px;
     }
 }
