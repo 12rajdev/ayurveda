@@ -105,7 +105,7 @@
     "customerAddress": "sdf",
     "orderDate": "2025-12-09T05:59:53.719Z",
     "deliveryDate": "2025-12-16T05:59:53.719Z",
-    "status": "in-progress",
+    "status": "completed",
     "paymentMethod": "cod"
   },
   {
@@ -121,7 +121,7 @@
     "customerAddress": "sdf",
     "orderDate": "2025-12-09T06:04:08.897Z",
     "deliveryDate": "2025-12-16T06:04:08.897Z",
-    "status": "in-progress",
+    "status": "completed",
     "paymentMethod": "cod"
   },
   {
@@ -138,7 +138,7 @@
     "customerAddress": "sdf",
     "orderDate": "2025-12-09T06:11:44.592Z",
     "deliveryDate": "2025-12-16T06:11:44.592Z",
-    "status": "in-progress",
+    "status": "completed",
     "paymentMethod": "cod"
   },
   {
@@ -155,7 +155,7 @@
     "customerAddress": "sdf",
     "orderDate": "2025-12-09T06:12:02.312Z",
     "deliveryDate": "2025-12-16T06:12:02.312Z",
-    "status": "in-progress",
+    "status": "completed",
     "paymentMethod": "cod"
   },
   {
@@ -195,5 +195,22 @@
     "paymentMethod": "cod",
     "cancelledAt": "2025-12-09T06:48:21.446Z",
     "cancellationReason": "not  good"
+  },
+  {
+    "id": "ORD1765268148383",
+    "productId": 1,
+    "productName": "Rajwadiprash Gold - Ayurvedic Hair Oil",
+    "productImage": "images/1765200456364-112245139.jpg",
+    "price": 599,
+    "originalPrice": 799,
+    "discount": 25,
+    "customerName": "devendra kumar mishra",
+    "customerMobile": "7715843183",
+    "customerEmail": "pppkavya24@gmail.com",
+    "customerAddress": "sdf",
+    "orderDate": "2025-12-09T08:15:48.383Z",
+    "deliveryDate": "2025-12-16T08:15:48.383Z",
+    "status": "in-progress",
+    "paymentMethod": "cod"
   }
 ]

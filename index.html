@@ -206,8 +206,14 @@
                     <input type="tel" id="customerMobile" required placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}">
                 </div>
                 <div class="form-group">
+                    <label for="customerPincode">📮 PIN Code *</label>
+                    <input type="text" id="customerPincode" required placeholder="Enter 6-digit PIN code" pattern="[0-9]{6}" maxlength="6">
+                    <button type="button" class="btn-check-pincode" onclick="verifyPincode()">Verify PIN Code</button>
+                    <div id="pincodeInfo" style="display: none; margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 5px; font-size: 14px;"></div>
+                </div>
+                <div class="form-group">
                     <label for="customerAddress">📍 Complete Address *</label>
-                    <textarea id="customerAddress" required placeholder="House/Flat No., Area, Landmark, City, State, PIN" rows="4"></textarea>
+                    <textarea id="customerAddress" required placeholder="House/Flat No., Area, Landmark" rows="4"></textarea>
                 </div>
                 
                 <!-- Payment Options for New Customers -->

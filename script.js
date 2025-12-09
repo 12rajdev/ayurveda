@@ -347,7 +347,7 @@ function displayProducts() {
                     </div>
                     <div class="product-actions">
                         <button class="btn btn-primary" onclick="openOrderModal(${product.id})">Book Order</button>
-                        <button class="btn btn-whatsapp" onclick="bookOnWhatsApp(${product.id})">📱 WhatsApp</button>
+                        <button class="btn btn-secondary" onclick="checkDelivery(${product.id})">📍 Check Delivery</button>
                     </div>
                 </div>
             </div>
@@ -529,7 +529,14 @@ function handleOrderSubmit(e) {
     const productId = parseInt(document.getElementById('selectedProductId').value);
     const customerName = document.getElementById('customerName').value;
     const customerMobile = document.getElementById('customerMobile').value;
+    const customerPincode = document.getElementById('customerPincode').value;
     const customerAddress = document.getElementById('customerAddress').value;
+    
+    // Validate PIN code
+    if (!/^\d{6}$/.test(customerPincode)) {
+        showNotification('Please enter a valid 6-digit PIN code!', 'error');
+        return;
+    }
     
     // Get selected payment method
     const paymentMethod = document.querySelector('input[name=\"newPaymentMethod\"]:checked').value;
@@ -538,6 +545,7 @@ function handleOrderSubmit(e) {
     const customerInfo = {
         name: customerName,
         mobile: customerMobile,
+        pincode: customerPincode,
         address: customerAddress
     };
     localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
@@ -570,6 +578,7 @@ function handleOrderSubmit(e) {
         discount: product.discount,
         customerName: customerName,
         customerMobile: customerMobile,
+        customerPincode: customerPincode,
         customerAddress: customerAddress,
         customerEmail: customerInfo.email || '',
         orderDate: orderDate.toISOString(),
@@ -748,9 +757,11 @@ function displayOrders(filter = 'all') {
                         ${order.status === 'in-progress' ? `<button class="btn-cancel-order" onclick="cancelOrder('${order.id}')">
                             ✗ Cancel Order
                         </button>` : ''}
-                        <button class="btn-download-receipt" onclick="downloadReceipt('${order.id}')">
+                        ${order.status === 'completed' ? `<button class="btn-download-receipt" onclick="downloadReceipt('${order.id}')">
                             📄 Download Receipt
-                        </button>
+                        </button>` : `<button class="btn-download-receipt" disabled style="opacity: 0.5; cursor: not-allowed;" title="Receipt available after delivery">
+                            📄 Download Receipt
+                        </button>`}
                     </div>
                 </div>
             </div>
@@ -763,21 +774,124 @@ function closeSuccessModal() {
     document.getElementById('successModal').style.display = 'none';
 }
 
-// ===== Book on WhatsApp =====
-function bookOnWhatsApp(productId) {
-    const product = products.find(p => p.id === productId);
+// ===== Check Delivery Availability =====
+async function checkDelivery(productId) {
+    const pincode = await showPrompt('Enter your PIN code to check delivery availability:', '', 'Check Delivery');
     
-    if (!product) {
-        showNotification('Product not found!', 'error');
+    if (!pincode || pincode.trim() === '') {
         return;
     }
     
-    const discountedPrice = Math.round(product.price - (product.price * product.discount / 100));
-    const message = `Hello, I want to book this product: ${product.name}, Price: ₹${discountedPrice}`;
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    // Validate PIN code format (6 digits)
+    if (!/^\d{6}$/.test(pincode.trim())) {
+        showNotification('Please enter a valid 6-digit PIN code!', 'error');
+        return;
+    }
     
-    window.open(whatsappUrl, '_blank');
+    // Check delivery availability based on PIN code
+    const deliveryInfo = await checkPincodeDelivery(pincode.trim());
+    
+    if (deliveryInfo.available) {
+        showNotification(`✓ Delivery available to ${deliveryInfo.city}, ${deliveryInfo.state}! Estimated delivery: ${deliveryInfo.days} days`, 'success');
+    } else {
+        showNotification(deliveryInfo.message || 'Sorry, we currently deliver only in Mumbai region (400001-400104)', 'error');
+    }
+}
+
+// ===== Verify Pincode in Order Form =====
+async function verifyPincode() {
+    const pincodeInput = document.getElementById('customerPincode');
+    const pincodeInfo = document.getElementById('pincodeInfo');
+    const pincode = pincodeInput.value.trim();
+    
+    if (!pincode) {
+        showNotification('Please enter a PIN code!', 'warning');
+        return;
+    }
+    
+    // Validate PIN code format (6 digits)
+    if (!/^\d{6}$/.test(pincode)) {
+        showNotification('Please enter a valid 6-digit PIN code!', 'error');
+        return;
+    }
+    
+    // Show loading
+    pincodeInfo.innerHTML = '<span style="color: #666;">⏳ Verifying PIN code...</span>';
+    pincodeInfo.style.display = 'block';
+    
+    // Check delivery availability
+    const deliveryInfo = await checkPincodeDelivery(pincode);
+    
+    if (deliveryInfo.available) {
+        pincodeInfo.innerHTML = `<span style="color: #228B22;">✓ Delivery available to ${deliveryInfo.city}, ${deliveryInfo.state}<br>Estimated delivery: ${deliveryInfo.days} days</span>`;
+        pincodeInfo.style.background = '#e8f5e9';
+        
+        // Auto-fill city and state in address if possible
+        const addressField = document.getElementById('customerAddress');
+        if (deliveryInfo.city && deliveryInfo.state && !addressField.value) {
+            addressField.placeholder = `House/Flat No., Area, Landmark, ${deliveryInfo.city}, ${deliveryInfo.state}`;
+        }
+    } else {
+        pincodeInfo.innerHTML = `<span style="color: #ff4444;">✗ ${deliveryInfo.message || 'Sorry, we currently deliver only in Mumbai region (400001-400104)'}</span>`;
+        pincodeInfo.style.background = '#ffebee';
+    }
+}
+
+// ===== Check Pincode Delivery =====
+async function checkPincodeDelivery(pincode) {
+    try {
+        // Check if pincode is in Mumbai region (400001-400104)
+        const pincodeNum = parseInt(pincode);
+        const isMumbai = pincodeNum >= 400001 && pincodeNum <= 400104;
+        
+        if (!isMumbai) {
+            return { 
+                available: false,
+                message: 'Sorry, we currently deliver only in Mumbai region (400001-400104)'
+            };
+        }
+        
+        // Try to fetch from India Post API to get exact location details
+        const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+        const data = await response.json();
+        
+        if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const postOffice = data[0].PostOffice[0];
+            return {
+                available: true,
+                city: postOffice.District || postOffice.Block || 'Mumbai',
+                state: postOffice.State || 'Maharashtra',
+                days: 3 // Mumbai delivery in 3 days
+            };
+        } else {
+            // If API fails but pincode is in Mumbai range, allow delivery
+            return {
+                available: true,
+                city: 'Mumbai',
+                state: 'Maharashtra',
+                days: 3
+            };
+        }
+    } catch (error) {
+        console.error('Error checking pincode:', error);
+        // Check Mumbai range even if API fails
+        const pincodeNum = parseInt(pincode);
+        const isMumbai = pincodeNum >= 400001 && pincodeNum <= 400104;
+        
+        if (isMumbai) {
+            return {
+                available: true,
+                city: 'Mumbai',
+                state: 'Maharashtra',
+                days: 3
+            };
+        } else {
+            return { 
+                available: false,
+                message: 'Sorry, we currently deliver only in Mumbai region (400001-400104)'
+            };
+        }
+    }
 }
 
 // ===== Edit Customer Info =====
@@ -992,9 +1106,11 @@ function displayTransactions(orders) {
                                 <td class="savings">₹${savings}</td>
                                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                                 <td>
-                                    <button class="btn-receipt-small" onclick="downloadReceipt('${order.id}')">
+                                    ${order.status === 'completed' ? `<button class="btn-receipt-small" onclick="downloadReceipt('${order.id}')">
                                         📄 Receipt
-                                    </button>
+                                    </button>` : `<button class="btn-receipt-small" disabled style="opacity: 0.5; cursor: not-allowed;" title="Receipt available after delivery">
+                                        📄 Receipt
+                                    </button>`}
                                 </td>
                             </tr>
                         `;
@@ -1012,6 +1128,12 @@ function downloadReceipt(orderId) {
     
     if (!order) {
         showNotification('Order not found!', 'error');
+        return;
+    }
+    
+    // Only allow download for completed orders
+    if (order.status !== 'completed') {
+        showNotification('Receipt is only available for completed orders!', 'warning');
         return;
     }
     

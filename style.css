@@ -737,14 +737,31 @@ body::before {
     transform: scale(1.05);
 }
 
-.btn-whatsapp {
-    background: #25D366;
+.btn-secondary {
+    background: #2196F3;
     color: white;
 }
 
-.btn-whatsapp:hover {
-    background: #1ea952;
+.btn-secondary:hover {
+    background: #1976D2;
     transform: scale(1.05);
+}
+
+.btn-check-pincode {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-check-pincode:hover {
+    background: var(--dark-green);
+    transform: translateY(-2px);
 }
 
 .no-products {
