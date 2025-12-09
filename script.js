@@ -236,7 +236,7 @@ async function loadProductsFromServer() {
                         category: 'oils',
                         price: 799,
                         discount: 25,
-                        image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=400&fit=crop',
+                        image: '',
                         description: 'Sugar-free Ayurvedic hair oil enriched with gold, silver & saffron. Natural blend of 21 precious herbs for strong, lustrous and healthy hair growth'
                     },
                     {
@@ -245,7 +245,7 @@ async function loadProductsFromServer() {
                         category: 'powders',
                         price: 450,
                         discount: 15,
-                        image: 'https://images.unsplash.com/photo-1505944357793-972eba8e48f8?w=400&h=400&fit=crop',
+                        image: '',
                         description: 'Traditional Ayurvedic dental powder with Triphala for strong teeth and healthy gums. Ancient herbal blend for complete oral care and fresh breath'
                     },
                     {
@@ -254,7 +254,7 @@ async function loadProductsFromServer() {
                         category: 'tablets',
                         price: 1299,
                         discount: 30,
-                        image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop',
+                        image: '',
                         description: 'Premium quality Ashwagandha tablets for stress relief, vitality and overall wellness. Powerful adaptogen for energy, immunity and mental clarity'
                     },
                     {
@@ -263,7 +263,7 @@ async function loadProductsFromServer() {
                         category: 'creams',
                         price: 599,
                         discount: 20,
-                        image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop',
+                        image: '',
                         description: 'Natural Ayurvedic face cream with Triphala and saffron. Enriched with turmeric for glowing, radiant and youthful skin. Suitable for all skin types'
                     },
                     {
@@ -272,7 +272,7 @@ async function loadProductsFromServer() {
                         category: 'tea',
                         price: 350,
                         discount: 10,
-                        image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400&h=400&fit=crop',
+                        image: '',
                         description: 'Refreshing Ayurvedic herbal tea with holy basil (Tulsi) for immunity boost, digestive health and natural detoxification. Rich in antioxidants'
                     },
                     {
@@ -281,7 +281,7 @@ async function loadProductsFromServer() {
                         category: 'powders',
                         price: 299,
                         discount: 15,
-                        image: 'https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=400&h=400&fit=crop',
+                        image: '',
                         description: 'Pure natural neem powder face pack for clear, radiant and acne-free skin. Deep cleanses pores and removes impurities for healthy glowing complexion'
                     },
                     {
@@ -290,7 +290,7 @@ async function loadProductsFromServer() {
                         category: 'oils',
                         price: 899,
                         discount: 35,
-                        image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=400&fit=crop',
+                        image: '',
                         description: 'Traditional Ayurvedic oil blend for effective joint pain relief, improved mobility and flexibility. Helps reduce inflammation and stiffness naturally'
                     },
                     {
@@ -299,7 +299,7 @@ async function loadProductsFromServer() {
                         category: 'tablets',
                         price: 1499,
                         discount: 40,
-                        image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400&h=400&fit=crop',
+                        image: '',
                         description: 'Premium Brahmi capsules for enhanced memory, concentration and mental clarity. Ancient Ayurvedic brain tonic for cognitive support and stress relief'
                     }
                 ];
@@ -335,7 +335,7 @@ function displayProducts() {
         
         return `
             <div class="product-card">
-                <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/280x250/228B22/FFFFFF?text=Product+Image'">
+                <img src="${product.image || 'images/placeholder.png'}" alt="${product.name}" class="product-image" onerror="this.style.display='none'">
                 <div class="product-info">
                     <span class="product-badge">${getCategoryName(product.category)}</span>
                     <h3 class="product-name">${product.name}</h3>
@@ -728,7 +728,7 @@ function displayOrders(filter = 'all') {
                 </div>
                 <div class="order-body">
                     <div class="order-product-info">
-                        <img src="${order.productImage}" alt="${order.productName}" class="order-product-image" onerror="this.src='https://via.placeholder.com/80x80/228B22/FFFFFF?text=Product'">
+                        <img src="${order.productImage || 'images/placeholder.png'}" alt="${order.productName}" class="order-product-image" onerror="this.style.display='none'">
                         <div class="order-product-details">
                             <h4>${order.productName}</h4>
                             <p class="order-price">₹${order.price} <span class="order-original-price">₹${order.originalPrice}</span> <span class="order-discount">(${order.discount}% OFF)</span></p>

@@ -14,7 +14,7 @@
     "category": "herbal-oils-",
     "price": 450,
     "discount": 15,
-    "image": "images/1765253250650-947191009.jpg",
+    "image": "images/1765265977373-15601289.jpg",
     "description": "Traditional Ayurvedic dental powder with Triphala for strong teeth and healthy gums. Ancient herbal blend for complete oral care and fresh breath"
   },
   {
@@ -23,7 +23,7 @@
     "category": "tablets",
     "price": 1299,
     "discount": 30,
-    "image": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop",
+    "image": "",
     "description": "Premium quality Ashwagandha tablets for stress relief, vitality and overall wellness. Powerful adaptogen for energy, immunity and mental clarity"
   },
   {
@@ -32,7 +32,7 @@
     "category": "creams",
     "price": 599,
     "discount": 20,
-    "image": "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop",
+    "image": "",
     "description": "Natural Ayurvedic face cream with Triphala and saffron. Enriched with turmeric for glowing, radiant and youthful skin. Suitable for all skin types"
   },
   {
@@ -41,7 +41,7 @@
     "category": "tea",
     "price": 350,
     "discount": 10,
-    "image": "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400&h=400&fit=crop",
+    "image": "",
     "description": "Refreshing Ayurvedic herbal tea with holy basil (Tulsi) for immunity boost, digestive health and natural detoxification. Rich in antioxidants"
   },
   {
@@ -50,7 +50,7 @@
     "category": "powders",
     "price": 299,
     "discount": 15,
-    "image": "https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=400&h=400&fit=crop",
+    "image": "",
     "description": "Pure natural neem powder face pack for clear, radiant and acne-free skin. Deep cleanses pores and removes impurities for healthy glowing complexion"
   },
   {
@@ -59,7 +59,7 @@
     "category": "oils",
     "price": 899,
     "discount": 35,
-    "image": "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=400&fit=crop",
+    "image": "",
     "description": "Traditional Ayurvedic oil blend for effective joint pain relief, improved mobility and flexibility. Helps reduce inflammation and stiffness naturally"
   },
   {
@@ -68,7 +68,7 @@
     "category": "tablets",
     "price": 1499,
     "discount": 40,
-    "image": "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400&h=400&fit=crop",
+    "image": "",
     "description": "Premium Brahmi capsules for enhanced memory, concentration and mental clarity. Ancient Ayurvedic brain tonic for cognitive support and stress relief"
   }
 ]

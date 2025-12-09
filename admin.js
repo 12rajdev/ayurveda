@@ -373,7 +373,7 @@ function displayAdminProducts() {
         
         return `
             <div class="admin-product-item">
-                <img src="${product.image}" alt="${product.name}" class="admin-product-image" onerror="this.src='https://via.placeholder.com/80x80/228B22/FFFFFF?text=Product'">
+                <img src="${product.image || 'images/placeholder.png'}" alt="${product.name}" class="admin-product-image" onerror="this.style.display='none'">
                 <div class="admin-product-details">
                     <h3>${product.name}</h3>
                     <p><strong>Category:</strong> ${getCategoryName(product.category)}</p>
@@ -646,7 +646,7 @@ function displayAdminOrders(filter = 'all') {
                 <div class="admin-order-body">
                     <div class="admin-order-row">
                         <div class="admin-order-product">
-                            <img src="${order.productImage}" alt="${order.productName}" onerror="this.src='https://via.placeholder.com/60x60/228B22/FFFFFF?text=Product'">
+                            <img src="${order.productImage || 'images/placeholder.png'}" alt="${order.productName}" onerror="this.style.display='none'">
                             <div>
                                 <strong>${order.productName}</strong>
                                 <p>₹${order.price} <span style="text-decoration: line-through; color: #999;">₹${order.originalPrice}</span> <span style="color: #ff4444;">(${order.discount}% OFF)</span></p>
