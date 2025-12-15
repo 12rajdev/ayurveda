@@ -254,7 +254,7 @@ if (EMAIL_ENABLED) {
             secure: false, // use TLS
             auth: {
                 user: 'devraj1502@gmail.com',
-                pass: 'tzmkeqdvvldfdmze' // Remove spaces from app password
+                pass: 'glutgfoqzygnhofo' // Remove spaces from app password
             },
             tls: {
                 rejectUnauthorized: false // Accept self-signed certificates
