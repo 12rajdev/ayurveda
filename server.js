@@ -244,7 +244,7 @@ app.get('/get-categories', (req, res) => {
 // 6. Replace the credentials below with your Gmail and App Password
 
 let transporter = null;
-const EMAIL_ENABLED = false; // Set to true to enable email notifications
+const EMAIL_ENABLED = true; // Set to true to enable email notifications
 
 if (EMAIL_ENABLED) {
     try {
