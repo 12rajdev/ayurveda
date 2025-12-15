@@ -249,14 +249,32 @@ const EMAIL_ENABLED = true; // Set to true to enable email notifications
 if (EMAIL_ENABLED) {
     try {
         transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false, // use TLS
             auth: {
                 user: 'devraj1502@gmail.com',
-                pass: 'tzmk eqdv vldf dmze'
+                pass: 'tzmkeqdvvldfdmze' // Remove spaces from app password
             },
-            connectionTimeout: 5000, // 5 seconds timeout
-            greetingTimeout: 5000,
-            socketTimeout: 10000
+            tls: {
+                rejectUnauthorized: false // Accept self-signed certificates
+            },
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 15000
+        });
+        
+        // Verify transporter configuration
+        transporter.verify(function(error, success) {
+            if (error) {
+                console.log('❌ Email verification failed:', error.message);
+                console.log('Please check your Gmail App Password and ensure:');
+                console.log('1. 2-Step Verification is enabled on your Google account');
+                console.log('2. You generated an App Password at https://myaccount.google.com/apppasswords');
+                console.log('3. The App Password is entered correctly without spaces');
+            } else {
+                console.log('✅ Email server is ready to send messages');
+            }
         });
     } catch (error) {
         console.log('Email configuration error:', error.message);
@@ -351,17 +369,19 @@ app.post('/send-email', async (req, res) => {
         // Send email with timeout
         const sendPromise = transporter.sendMail(mailOptions);
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Email timeout')), 8000)
+            setTimeout(() => reject(new Error('Email timeout - server took too long to respond')), 12000)
         );
         
         await Promise.race([sendPromise, timeoutPromise]);
+        console.log(`✓ Email sent successfully to ${toEmail} for order ${orderId}`);
         res.json({ success: true, message: 'Email sent successfully' });
     } catch (error) {
         console.error('Error sending email:', error.message);
+        console.error('Full error:', error);
         // Don't fail the request, just log the error
         res.json({ 
             success: true, 
-            message: 'Order confirmed successfully. Email notification failed.' 
+            message: 'Order confirmed successfully. Email notification failed: ' + error.message 
         });
     }
 });
