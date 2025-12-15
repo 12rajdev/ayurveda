@@ -20,28 +20,28 @@
   {
     "id": 3,
     "name": "Ashwagandha Tablets - Premium Quality",
-    "category": "tablets",
+    "category": "herbal-oils-",
     "price": 1299,
     "discount": 30,
-    "image": "",
+    "image": "images/1765271615585-966867831.jpg",
     "description": "Premium quality Ashwagandha tablets for stress relief, vitality and overall wellness. Powerful adaptogen for energy, immunity and mental clarity"
   },
   {
     "id": 4,
     "name": "Triphaladi Guggulu - Ayurvedic Face Cream",
-    "category": "creams",
+    "category": "herbal-tablets-",
     "price": 599,
     "discount": 20,
-    "image": "",
+    "image": "images/1765271635978-692527932.jpg",
     "description": "Natural Ayurvedic face cream with Triphala and saffron. Enriched with turmeric for glowing, radiant and youthful skin. Suitable for all skin types"
   },
   {
     "id": 5,
     "name": "Maha Yograj Guggulu - Herbal Tea",
-    "category": "tea",
+    "category": "ayurvedic-powders-",
     "price": 350,
     "discount": 10,
-    "image": "",
+    "image": "images/1765271651091-83615223.jpg",
     "description": "Refreshing Ayurvedic herbal tea with holy basil (Tulsi) for immunity boost, digestive health and natural detoxification. Rich in antioxidants"
   },
   {

@@ -234,36 +234,64 @@ app.get('/get-categories', (req, res) => {
 });
 
 // Email configuration
-// NOTE: You must generate a Gmail App Password to use this feature
-// Follow these steps:
+// NOTE: Email is optional. If not configured, orders will still work
+// To enable email notifications, generate a Gmail App Password:
 // 1. Go to https://myaccount.google.com/apppasswords
-// 2. Sign in with devraj1502@gmail.com
+// 2. Sign in with your Gmail account
 // 3. Select "Mail" and "Other (Custom name)"
-// 4. Name it "AyurVeda Website" and click Generate
+// 4. Name it "Ayushi Ayurved Website" and click Generate
 // 5. Copy the 16-character password (remove spaces)
-// 6. Replace the password below with your App Password
+// 6. Replace the credentials below with your Gmail and App Password
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'devraj1502@gmail.com',
-        pass: 'tzmk eqdv vldf dmze' // Replace with your Gmail App Password (16 characters)
+let transporter = null;
+const EMAIL_ENABLED = false; // Set to true to enable email notifications
+
+if (EMAIL_ENABLED) {
+    try {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'devraj1502@gmail.com',
+                pass: 'tzmk eqdv vldf dmze'
+            },
+            connectionTimeout: 5000, // 5 seconds timeout
+            greetingTimeout: 5000,
+            socketTimeout: 10000
+        });
+    } catch (error) {
+        console.log('Email configuration error:', error.message);
     }
-});
+}
 
 // Send order confirmation email
 app.post('/send-email', async (req, res) => {
     try {
+        // If email is not enabled, return success without sending
+        if (!EMAIL_ENABLED || !transporter) {
+            return res.json({ 
+                success: true, 
+                message: 'Email notifications are currently disabled. Order confirmed successfully.' 
+            });
+        }
+
         const { toEmail, customerName, orderId, productName, price, deliveryDate } = req.body;
         
+        // Validate email
+        if (!toEmail || !toEmail.includes('@')) {
+            return res.json({ 
+                success: true, 
+                message: 'No valid email provided. Order confirmed successfully.' 
+            });
+        }
+
         const mailOptions = {
             from: 'devraj1502@gmail.com',
             to: toEmail,
-            subject: `Order Confirmation - ${orderId} - AyurVeda`,
+            subject: `Order Confirmation - ${orderId} - Ayushi Ayurved`,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
                     <div style="background: linear-gradient(135deg, #228B22 0%, #32CD32 100%); color: white; padding: 20px; border-radius: 10px 10px 0 0; text-align: center;">
-                        <h1 style="margin: 0;">🌿 AyurVeda</h1>
+                        <h1 style="margin: 0;">🌿 Ayushi Ayurved</h1>
                         <p style="margin: 5px 0 0 0;">Natural Healing for Better Living</p>
                     </div>
                     
@@ -308,23 +336,33 @@ app.post('/send-email', async (req, res) => {
                         </div>
                         
                         <p style="font-size: 14px; color: #666; margin-top: 30px;">
-                            Thank you for choosing AyurVeda for your natural wellness needs!
+                            Thank you for choosing Ayushi Ayurved for your natural wellness needs!
                         </p>
                     </div>
                     
                     <div style="background: #228B22; color: white; padding: 15px; text-align: center; border-radius: 0 0 10px 10px;">
-                        <p style="margin: 0; font-size: 14px;">&copy; 2025 AyurVeda. All Rights Reserved.</p>
+                        <p style="margin: 0; font-size: 14px;">&copy; 2025 Ayushi Ayurved. All Rights Reserved.</p>
                         <p style="margin: 5px 0 0 0; font-size: 12px;">Natural Healing for Better Living</p>
                     </div>
                 </div>
             `
         };
         
-        await transporter.sendMail(mailOptions);
+        // Send email with timeout
+        const sendPromise = transporter.sendMail(mailOptions);
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Email timeout')), 8000)
+        );
+        
+        await Promise.race([sendPromise, timeoutPromise]);
         res.json({ success: true, message: 'Email sent successfully' });
     } catch (error) {
-        console.error('Error sending email:', error);
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Error sending email:', error.message);
+        // Don't fail the request, just log the error
+        res.json({ 
+            success: true, 
+            message: 'Order confirmed successfully. Email notification failed.' 
+        });
     }
 });
 

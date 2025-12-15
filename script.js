@@ -1175,7 +1175,7 @@ function downloadReceipt(orderId) {
         <body>
             <div class="receipt">
                 <div class="header">
-                    <h1>🌿 AyurVeda</h1>
+                    <h1>🌿 Ayushi Ayurved</h1>
                     <p>Natural Healing Products | Order Receipt</p>
                 </div>
                 
@@ -1228,8 +1228,8 @@ function downloadReceipt(orderId) {
                 </div>
                 
                 <div class="footer">
-                    <p>Thank you for choosing AyurVeda - Natural Healing for Better Living</p>
-                    <p>For any queries, please contact us at support@ayurveda.com</p>
+                    <p>Thank you for choosing Ayushi Ayurved - Natural Healing for Better Living</p>
+                    <p>For any queries, please contact us at support@ayushiayurved.com</p>
                     <p style="margin-top: 10px;">This is a computer-generated receipt and does not require a signature.</p>
                 </div>
             </div>
