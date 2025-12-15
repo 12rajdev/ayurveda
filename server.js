@@ -249,19 +249,14 @@ const EMAIL_ENABLED = true; // Set to true to enable email notifications
 if (EMAIL_ENABLED) {
     try {
         transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false, // use TLS
+            service: 'gmail',
             auth: {
                 user: 'devraj1502@gmail.com',
-                pass: 'glutgfoqzygnhofo' // Remove spaces from app password
+                pass: 'devraj1502' // Your Gmail App Password
             },
             tls: {
-                rejectUnauthorized: false // Accept self-signed certificates
-            },
-            connectionTimeout: 10000,
-            greetingTimeout: 10000,
-            socketTimeout: 15000
+                rejectUnauthorized: false
+            }
         });
         
         // Verify transporter configuration
